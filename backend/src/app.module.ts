@@ -1,16 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 /**
  * AppModule - NestJS Core Application Module
- * 
- * Architectural Highlights:
- * 1. Global ConfigModule: Centralized validation and loading of environment variables (.env).
- * 2. Asynchronous TypeOrmModule Connection: Prevents hardcoding database credentials and allows GCP Cloud Run
- *    to inject environment variables dynamically at runtime (Cloud SQL proxy / Socket connection).
- * 3. Auto-Loading Entities: Automatically discovers feature module TypeORM entities without manual array lists.
- * 4. Development vs Production Safeguards: `synchronize` is dynamically toggled via environment variable.
  */
 @Module({
   imports: [
@@ -45,8 +40,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         };
       },
     }),
+
+    // Domain Feature Modules
+    UsersModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
 })
-export className AppModule {}
+export class AppModule {}
