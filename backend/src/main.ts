@@ -9,12 +9,14 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);
+  const corsOrigin = configService.get<string>('CORS_ORIGIN', 'http://localhost:5173');
 
-  // Enable CORS for React PWA frontend
+  // Enable CORS allowing React PWA frontend requests
   app.enableCors({
-    origin: '*', // Restrict to specific domains in production
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: [corsOrigin, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   // Global DTO validation pipe
@@ -31,5 +33,6 @@ async function bootstrap() {
 
   await app.listen(port);
   logger.log(`🚀 HACCP SaaS Backend running on: http://localhost:${port}/api/v1`);
+  logger.log(`🔒 CORS enabled for origin: ${corsOrigin}`);
 }
 bootstrap();
