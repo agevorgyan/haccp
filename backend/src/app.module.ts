@@ -32,14 +32,15 @@ import { UsersModule } from './modules/users/users.module';
           username: configService.get<string>('DB_USERNAME', 'postgres'),
           password: configService.get<string>('DB_PASSWORD', ''),
           database: configService.get<string>('DB_NAME', 'haccp_db'),
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
           autoLoadEntities: true,
           // Strict safeguard: DB_SYNCHRONIZE must be explicitly true AND environment must be development
           synchronize: isDev && allowSync,
           logging: configService.get<boolean>('DB_LOGGING', false),
           ssl: isProduction
             ? {
-                rejectUnauthorized: false,
-              }
+              rejectUnauthorized: false,
+            }
             : false,
         };
       },
@@ -52,4 +53,4 @@ import { UsersModule } from './modules/users/users.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

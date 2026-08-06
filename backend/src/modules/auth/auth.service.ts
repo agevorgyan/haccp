@@ -1,67 +1,77 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from '../users/users.service';
-import { User } from '../users/entities/user.entity';
-
-export interface LoginResponse {
-  accessToken: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    phone: string;
-    role: string;
-    organizationId: string;
-  };
-}
+import { User, UserRole } from '../users/entities/user.entity';
+import { Organization } from '../organizations/entities/organization.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
-  ) {}
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    @InjectRepository(Organization)
+    private organizationRepository: Repository<Organization>,
+    private jwtService: JwtService,
+  ) { }
 
-  /**
-   * Validate user phone number and verify password hash with bcrypt.
-   */
   async validateUser(phone: string, pass: string): Promise<User | null> {
-    const user = await this.usersService.findByPhone(phone);
-    if (!user) {
-      return null;
-    }
-
-    const isMatch = await bcrypt.compare(pass, user.passwordHash);
-    if (isMatch) {
+    const user = await this.userRepository.findOne({
+      where: { phone },
+      select: ['id', 'phone', 'passwordHash', 'role', 'firstName', 'lastName']
+    });
+    if (user && (await bcrypt.compare(pass, user.passwordHash))) {
       return user;
     }
-
     return null;
   }
 
-  /**
-   * Generate signed JWT access token containing tenant claims.
-   */
-  async login(user: User): Promise<LoginResponse> {
-    const payload = {
-      sub: user.id,
-      phone: user.phone,
-      role: user.role,
-      organizationId: user.organization?.id,
-    };
-
-    const accessToken = this.jwtService.sign(payload);
-
+  async login(user: User) {
+    const payload = { sub: user.id, phone: user.phone, role: user.role };
     return {
-      accessToken,
+      access_token: this.jwtService.sign(payload),
       user: {
         id: user.id,
+        phone: user.phone,
         firstName: user.firstName,
         lastName: user.lastName,
-        phone: user.phone,
         role: user.role,
-        organizationId: user.organization?.id,
+      },
+    };
+  }
+
+  // ՍԵՐՄՆԱՑԱՆԻ ՄԵԹՈԴԸ
+  async seedTestData() {
+    let org = await this.organizationRepository.findOne({ where: { name: 'Gayane Kitchen' } });
+
+    if (!org) {
+      org = await this.organizationRepository.save({
+        name: 'Gayane Kitchen',
+        subscriptionStatus: 'active',
+      } as any);
+    }
+
+    let user = await this.userRepository.findOne({ where: { phone: '+37491111111' } });
+
+    if (!user) {
+      const hashedPassword = await bcrypt.hash('1234', 10);
+      user = this.userRepository.create({
+        firstName: 'Avetis',
+        lastName: 'Manager',
+        phone: '+37491111111',
+        passwordHash: hashedPassword,
+        role: UserRole.OWNER,
+        organization: org,
+      });
+      await this.userRepository.save(user);
+    }
+
+    return {
+      message: 'Test data seeded successfully!',
+      loginCredentials: {
+        phone: '+37491111111',
+        password: '1234',
       },
     };
   }
