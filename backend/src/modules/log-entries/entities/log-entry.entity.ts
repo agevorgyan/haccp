@@ -1,5 +1,6 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 import { LogTemplate } from '../../log-templates/entities/log-template.entity';
 import { User } from '../../users/entities/user.entity';
 import { Branch } from '../../branches/entities/branch.entity';
@@ -15,7 +16,17 @@ export enum LogStatus {
  * Immutable audit record representing filled HACCP logs submitted by kitchen staff.
  */
 @Entity('log_entries')
+@Index(['organizationId', 'createdAt']) // Composite index for ultra-fast multi-tenant time-range queries
+@Index(['organizationId', 'status'])   // Composite index for audit alerts & compliance filtering
 export class LogEntry extends BaseEntity {
+  @Column({ type: 'uuid', comment: 'Direct tenant reference for strict multi-tenant database isolation' })
+  organizationId: string;
+
+  // Direct relationship to Tenant Organization
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE', nullable: false })
+  @JoinColumn({ name: 'organization_id' })
+  organization: Organization;
+
   @Column({
     type: 'jsonb',
     comment: 'PostgreSQL JSONB column storing actual submitted log data (e.g. { temperature: 3.8, photoUrl: "..." })',

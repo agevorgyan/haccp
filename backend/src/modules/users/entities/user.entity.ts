@@ -24,7 +24,12 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 50, unique: true, comment: 'Phone number used for OTP/credentials authentication' })
   phone: string;
 
-  @Column({ type: 'varchar', length: 255, comment: 'Bcrypt hashed password' })
+  @Column({ 
+    type: 'varchar', 
+    length: 255, 
+    select: false, // Prevents passwordHash from being returned in default TypeORM queries
+    comment: 'Bcrypt hashed password' 
+  })
   passwordHash: string;
 
   @Column({

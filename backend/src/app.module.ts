@@ -20,7 +20,10 @@ import { UsersModule } from './modules/users/users.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        const env = configService.get<string>('NODE_ENV', 'development');
+        const isDev = env === 'development';
+        const isProduction = env === 'production';
+        const allowSync = configService.get<boolean>('DB_SYNCHRONIZE', false);
 
         return {
           type: 'postgres',
@@ -30,7 +33,8 @@ import { UsersModule } from './modules/users/users.module';
           password: configService.get<string>('DB_PASSWORD', ''),
           database: configService.get<string>('DB_NAME', 'haccp_db'),
           autoLoadEntities: true,
-          synchronize: configService.get<boolean>('DB_SYNCHRONIZE', !isProduction),
+          // Strict safeguard: DB_SYNCHRONIZE must be explicitly true AND environment must be development
+          synchronize: isDev && allowSync,
           logging: configService.get<boolean>('DB_LOGGING', false),
           ssl: isProduction
             ? {
