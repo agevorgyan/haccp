@@ -24,7 +24,9 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.4.0",
+    "@nestjs/platform-socket.io": "^10.4.22",
     "@nestjs/typeorm": "^10.0.2",
+    "@nestjs/websockets": "^10.4.22",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -33,7 +35,9 @@
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20"
+    "socket.io": "^4.8.3",
+    "typeorm": "^0.3.20",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.0",
@@ -44,6 +48,7 @@
     "@types/node": "^20.16.0",
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1",
+    "@types/web-push": "^3.6.4",
     "typescript": "^5.5.4"
   }
 }

@@ -39,6 +39,24 @@
     "managerMode": "Manager Portal",
     "logout": "Log Out"
   },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "unread",
+    "markAllAsRead": "Mark all as read",
+    "noNotifications": "No notifications yet",
+    "emptySub": "System alerts and CCP deviations will appear here.",
+    "liveStream": "Live Alerts Channel",
+    "sendTestAlert": "Test Alert",
+    "testAlert": "Test Notification",
+    "justNow": "Just now",
+    "enablePushTitle": "Browser Push Notifications & Real-Time Alerts",
+    "enablePushSub": "Receive instant OS-level desktop & mobile alerts when Critical Control Points (CCP) or temperature safe zones are breached.",
+    "enablePushBtn": "Enable Push Notifications",
+    "pushEnabledBtn": "Push Active",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enabling": "Configuring..."
+  },
   "auth": {
     "signInTitle": "Sign In to Venue",
     "signInSub": "Enter your registered phone number & 4-digit PIN",

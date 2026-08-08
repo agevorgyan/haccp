@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { LocalizationModule } from './modules/localization/localization.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -51,6 +52,7 @@ import { LocalizationModule } from './modules/localization/localization.module';
     UsersModule,
     AuthModule,
     LocalizationModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],

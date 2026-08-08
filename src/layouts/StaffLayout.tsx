@@ -13,6 +13,7 @@ import {
   Globe
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
+import { NotificationBell } from '../components/common/NotificationBell';
 import { authService } from '../services/authService';
 
 interface NavItem {
@@ -79,8 +80,11 @@ export const StaffLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* Header Right Tools / Language Switcher / Logout */}
+        {/* Header Right Tools / Language Switcher / Notifications / Logout */}
         <div className="flex items-center gap-2">
+          {/* Notification Bell */}
+          <NotificationBell />
+
           {/* Language Switcher Button */}
           <button
             onClick={toggleLanguage}

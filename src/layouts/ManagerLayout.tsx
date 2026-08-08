@@ -6,7 +6,6 @@ import {
   FileSpreadsheet,
   Building2,
   Settings,
-  Bell,
   Search,
   ChevronDown,
   ShieldCheck,
@@ -20,6 +19,7 @@ import {
   Users
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
+import { NotificationBell } from '../components/common/NotificationBell';
 import { authService } from '../services/authService';
 
 interface NavItem {
@@ -292,16 +292,8 @@ export const ManagerLayout: React.FC = () => {
               <span>{t('common.exportAudit')}</span>
             </button>
 
-            {/* Critical Alert Center */}
-            <button
-              className="relative p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-900 transition-colors"
-              aria-label="View CCP Alerts"
-              title="2 Critical CCP Deviations Detected"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500"></span>
-            </button>
+            {/* Real-time Notification Bell */}
+            <NotificationBell />
 
             {/* Direct Link to Staff Kitchen Mode */}
             <NavLink

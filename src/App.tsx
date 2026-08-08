@@ -12,6 +12,7 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { authService } from './services/authService';
+import { NotificationProvider } from './context/NotificationContext';
 
 /**
  * Root Redirect Handler
@@ -37,7 +38,8 @@ const RootRedirect: React.FC = () => {
  */
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <NotificationProvider>
+      <BrowserRouter>
       <Routes>
         {/* Public Authentication Route */}
         <Route path="/login" element={<LoginPage />} />
@@ -74,6 +76,7 @@ export const App: React.FC = () => {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
+    </NotificationProvider>
   );
 };
 
