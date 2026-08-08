@@ -17,37 +17,70 @@ import type { DailyLog, TaskStatus, TaskCategory, TemperatureSubmission } from '
 import { TemperatureLogForm } from '../../components/staff/TemperatureLogForm';
 import { logService } from '../../services/logService';
 
+const LOCAL_STORAGE_KEY = 'haccp_daily_logs';
+
 /**
  * StaffDashboard Component
  * Core mobile interface for kitchen staff.
- * Refactored to fetch real HACCP log data via `logService.getDailyLogs()` with loading & error handling.
+ * Features robust offline-first local persistence (localStorage) so filled logs survive page refreshes.
  */
 export const StaffDashboard: React.FC = () => {
-  const [logs, setLogs] = useState<DailyLog[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  // Lazy state initializer: Loads cached logs from localStorage first for instant offline rendering
+  const [logs, setLogs] = useState<DailyLog[]>(() => {
+    try {
+      const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to parse cached HACCP logs from localStorage:', err);
+    }
+    return [];
+  });
+
+  const [loading, setLoading] = useState<boolean>(logs.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'pending' | 'completed' | 'warning'>('all');
   const [activeFormLog, setActiveFormLog] = useState<DailyLog | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Fetch daily logs on component mount
+  // Fetch daily logs from backend API or mock fallback
   const fetchLogs = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await logService.getDailyLogs();
       setLogs(data);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
     } catch (err) {
       console.error('Failed to load daily logs:', err);
-      setError('Unable to fetch daily compliance logs. Please check your network connection.');
+      setError('Unable to fetch daily compliance logs. Showing cached local logs.');
     } finally {
       setLoading(false);
     }
   };
 
+  // On mount: If no local cache exists, fetch initial logs
   useEffect(() => {
-    fetchLogs();
+    const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (!cached || logs.length === 0) {
+      fetchLogs();
+    }
   }, []);
+
+  // Sync mechanism: Every time logs state changes (e.g. log submitted), persist full array to localStorage
+  useEffect(() => {
+    if (logs.length > 0) {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(logs));
+      } catch (err) {
+        console.error('Failed to persist HACCP logs to localStorage:', err);
+      }
+    }
+  }, [logs]);
 
   // Calculate shift metrics
   const totalTasks = logs.length;
@@ -150,13 +183,15 @@ export const StaffDashboard: React.FC = () => {
     <div className="max-w-md mx-auto space-y-4 select-none pb-8">
       {/* Modal Form Overlay */}
       {activeFormLog && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full animate-scale-up">
-            <TemperatureLogForm
-              log={activeFormLog}
-              onSaveSuccess={handleLogSubmitted}
-              onCancel={handleCloseForm}
-            />
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div className="w-full max-w-md animate-scale-up my-auto">
+              <TemperatureLogForm
+                log={activeFormLog}
+                onSaveSuccess={handleLogSubmitted}
+                onCancel={handleCloseForm}
+              />
+            </div>
           </div>
         </div>
       )}
