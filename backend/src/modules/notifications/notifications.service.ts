@@ -14,8 +14,9 @@ export type NotificationChannel = 'APP' | 'PUSH' | 'EMAIL' | 'TELEGRAM';
 
 // Standard VAPID fallback pair for dev environments
 const DEFAULT_VAPID_PUBLIC_KEY =
-  'BC-P7tG3wM7x2z9R6X8Q5V4Y3Z2A1B0C9D8E7F6G5H4I3J2K1L0M9N8O7P6Q5R4S3T2U1V0W9X8Y7Z6A5B4C3D2E1';
-const DEFAULT_VAPID_PRIVATE_KEY = 'v1w2x3y4z5a6b7c8d9e0f1g2h3i4j5k6';
+  'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeNE3AcDp9yYnC674d89aM493iI96K6u54U9l4m-1u2K2A4a5V-Q';
+const DEFAULT_VAPID_PRIVATE_KEY =
+  'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6';
 
 @Injectable()
 export class NotificationsService {

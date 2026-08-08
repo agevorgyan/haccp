@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { CustomHandlebarsAdapter } from './adapters/custom-handlebars.adapter';
 import { join } from 'path';
 
 import { Notification } from './entities/notification.entity';
@@ -50,7 +50,7 @@ import { NotificationsController } from './notifications.controller';
         },
         template: {
           dir: join(__dirname, 'templates'),
-          adapter: new HandlebarsAdapter(),
+          adapter: new CustomHandlebarsAdapter(),
           options: {
             strict: true,
           },
