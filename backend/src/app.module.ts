@@ -9,6 +9,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { HaccpPlansModule } from './modules/haccp-plans/haccp-plans.module';
 import { HazardsModule } from './modules/hazards/hazards.module';
 import { CcpsModule } from './modules/ccps/ccps.module';
+import { LogTemplatesModule } from './modules/log-templates/log-templates.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -61,6 +62,7 @@ import { CcpsModule } from './modules/ccps/ccps.module';
     HaccpPlansModule,
     HazardsModule,
     CcpsModule,
+    LogTemplatesModule,
   ],
   controllers: [],
   providers: [],

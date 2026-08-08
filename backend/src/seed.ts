@@ -5,7 +5,8 @@ import * as bcrypt from 'bcrypt';
 import { Organization } from './modules/organizations/entities/organization.entity';
 import { Branch } from './modules/branches/entities/branch.entity';
 import { User, UserRole } from './modules/users/entities/user.entity';
-import { LogTemplate, LogFrequency } from './modules/log-templates/entities/log-template.entity';
+import { LogTemplate, LogTemplateStatus } from './modules/log-templates/entities/log-template.entity';
+import { FormFieldType } from './modules/log-templates/interfaces/form-field-schema.interface';
 import { LogEntry } from './modules/log-entries/entities/log-entry.entity';
 
 /**
@@ -23,25 +24,23 @@ async function seed() {
   const dataSource = app.get(DataSource);
   const queryRunner = dataSource.createQueryRunner();
 
-  await queryRunner.connect();
-  await queryRunner.startTransaction();
-
   try {
-    console.log('🧹 Clearing existing data to prevent unique constraint violations...');
-    // Truncate tables in dependency order with CASCADE to support safe repeated execution
-    await queryRunner.query('TRUNCATE TABLE log_entries, log_templates, users, branches, organizations CASCADE;');
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const orgRepo = dataSource.getRepository(Organization);
-    const branchRepo = dataSource.getRepository(Branch);
-    const userRepo = dataSource.getRepository(User);
-    const templateRepo = dataSource.getRepository(LogTemplate);
+    const userRepo = queryRunner.manager.getRepository(User);
+    const orgRepo = queryRunner.manager.getRepository(Organization);
+    const branchRepo = queryRunner.manager.getRepository(Branch);
+    const templateRepo = queryRunner.manager.getRepository(LogTemplate);
+
+    console.log('🧹 Clearing existing data to prevent unique constraint violations...');
+    // We clear in reverse order of foreign keys
+    await queryRunner.query('TRUNCATE TABLE "log_entries", "log_templates", "ccps", "hazards", "haccp_plans", "users", "branches", "organizations" CASCADE');
 
     // 1. Create Organization
     console.log('🏢 Creating Organization: "Test Cafe LLC"...');
     const org = orgRepo.create({
       name: 'Test Cafe LLC',
-      taxId: 'US-987654321',
-      isActive: true,
     });
     await queryRunner.manager.save(org);
 
@@ -49,18 +48,17 @@ async function seed() {
     console.log('📍 Creating Branch: "Downtown Branch"...');
     const branch = branchRepo.create({
       name: 'Downtown Branch',
-      address: '123 Main Street, Suite 100',
       organization: org,
     });
     await queryRunner.manager.save(branch);
 
-    // 3. Create Users (bcrypt hashed PIN "1234")
+    // 3. Create Users
     console.log('🔐 Hashing PIN/password with bcrypt...');
     const hashedPin = await bcrypt.hash('1234', 10);
 
     console.log('👤 Creating Manager User (Phone: 099111111)...');
     const managerUser = userRepo.create({
-      firstName: 'Alex',
+      firstName: 'Arman',
       lastName: 'Manager',
       phone: '099111111',
       passwordHash: hashedPin,
@@ -71,7 +69,7 @@ async function seed() {
 
     console.log('👨‍🍳 Creating Staff User (Phone: 099222222)...');
     const staffUser = userRepo.create({
-      firstName: 'Sam',
+      firstName: 'Gevorg',
       lastName: 'Staff',
       phone: '099222222',
       passwordHash: hashedPin,
@@ -83,23 +81,23 @@ async function seed() {
     // 4. Create LogTemplate
     console.log('📋 Creating LogTemplate: "Morning Fridge Check"...');
     const logTemplate = templateRepo.create({
-      title: 'Morning Fridge Check',
+      name: 'Morning Fridge Check',
       description: 'Daily morning temperature inspection for kitchen walk-in refrigerators.',
-      frequency: LogFrequency.DAILY,
-      schema: {
-        fields: [
-          {
-            name: 'temperature',
-            label: 'Walk-In Fridge Temperature',
-            type: 'number',
-            unit: '°C',
-            required: true,
-            safeRange: { min: 0, max: 5 },
-          },
-        ],
-        equipmentOrArea: 'Main Walk-In Refrigerator',
-        ccpCode: 'CCP-1',
-      },
+      organizationId: org.id,
+      branchId: branch.id,
+      status: LogTemplateStatus.ACTIVE,
+      version: 1,
+      fields: [
+        {
+          id: 'field-1',
+          type: FormFieldType.TEMPERATURE,
+          label: 'Walk-In Fridge Temperature',
+          required: true,
+          unit: '°C',
+          min: 0,
+          max: 5,
+        },
+      ],
       organization: org,
     });
     await queryRunner.manager.save(logTemplate);
@@ -112,7 +110,7 @@ async function seed() {
     console.log(`- Branch       : ${branch.name} (ID: ${branch.id})`);
     console.log(`- Manager User : Phone: 099111111 | PIN: 1234 | Role: MANAGER`);
     console.log(`- Staff User   : Phone: 099222222 | PIN: 1234 | Role: STAFF`);
-    console.log(`- Log Template : ${logTemplate.title} (CCP-1, range: 0°C to 5°C)`);
+    console.log(`- Log Template : ${logTemplate.name} (CCP-1, range: 0°C to 5°C)`);
     console.log('----------------------------------------------------');
   } catch (error) {
     console.error('❌ Seeding failed with error:', error);
