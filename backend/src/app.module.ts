@@ -8,6 +8,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { AuditModule } from './modules/audit/audit.module';
 import { HaccpPlansModule } from './modules/haccp-plans/haccp-plans.module';
 import { HazardsModule } from './modules/hazards/hazards.module';
+import { CcpsModule } from './modules/ccps/ccps.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -59,6 +60,7 @@ import { HazardsModule } from './modules/hazards/hazards.module';
     AuditModule,
     HaccpPlansModule,
     HazardsModule,
+    CcpsModule,
   ],
   controllers: [],
   providers: [],
