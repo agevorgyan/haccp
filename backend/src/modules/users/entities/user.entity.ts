@@ -4,6 +4,7 @@ import { Organization } from '../../organizations/entities/organization.entity';
 import { LogEntry } from '../../log-entries/entities/log-entry.entity';
 
 export enum UserRole {
+  SUPER_ADMIN = 'SUPER_ADMIN',
   OWNER = 'OWNER',
   MANAGER = 'MANAGER',
   STAFF = 'STAFF',
