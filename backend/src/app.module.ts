@@ -11,6 +11,7 @@ import { HazardsModule } from './modules/hazards/hazards.module';
 import { CcpsModule } from './modules/ccps/ccps.module';
 import { LogTemplatesModule } from './modules/log-templates/log-templates.module';
 import { LogEntriesModule } from './modules/log-entries/log-entries.module';
+import { CorrectionRequestsModule } from './modules/correction-requests/correction-requests.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -65,6 +66,7 @@ import { LogEntriesModule } from './modules/log-entries/log-entries.module';
     CcpsModule,
     LogTemplatesModule,
     LogEntriesModule,
+    CorrectionRequestsModule,
   ],
   controllers: [],
   providers: [],
