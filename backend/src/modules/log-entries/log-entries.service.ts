@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,6 +11,7 @@ import { LogEntry, LogEntryStatus } from './entities/log-entry.entity';
 import { CreateLogEntryDto } from './dto/create-log-entry.dto';
 import { UpdateLogEntryDto } from './dto/update-log-entry.dto';
 import { LogTemplatesService } from '../log-templates/log-templates.service';
+import { ViolationsService } from '../violations/violations.service';
 import { TenantContext } from '../../common/decorators/current-tenant.decorator';
 import { UserRole } from '../users/entities/user.entity';
 
@@ -18,6 +21,8 @@ export class LogEntriesService {
     @InjectRepository(LogEntry)
     private readonly logEntryRepository: Repository<LogEntry>,
     private readonly logTemplatesService: LogTemplatesService,
+    @Inject(forwardRef(() => ViolationsService))
+    private readonly violationsService: ViolationsService,
   ) {}
 
   /**
@@ -89,7 +94,14 @@ export class LogEntriesService {
       device: dto.device,
     });
 
-    return this.logEntryRepository.save(entry);
+    const savedEntry = await this.logEntryRepository.save(entry);
+
+    // 3. Automated Compliance Evaluation: Trigger Violation Engine if submitted
+    if (savedEntry.status === LogEntryStatus.SUBMITTED) {
+      await this.violationsService.evaluateLogEntry(savedEntry.id, tenant);
+    }
+
+    return savedEntry;
   }
 
   /**
