@@ -24,7 +24,8 @@ const RootRedirect: React.FC = () => {
   }
 
   const currentUser = authService.getCurrentUser();
-  if (currentUser?.role === 'MANAGER' || currentUser?.role === 'OWNER') {
+  const role = currentUser?.role?.toUpperCase();
+  if (role === 'MANAGER' || role === 'OWNER' || role === 'SUPER_ADMIN') {
     return <Navigate to="/manager/dashboard" replace />;
   }
 
@@ -45,7 +46,7 @@ export const App: React.FC = () => {
         <Route path="/" element={<RootRedirect />} />
 
         {/* Protected Staff Layout Group (Mobile Kitchen Interface) */}
-        <Route element={<ProtectedRoute allowedRoles={['STAFF', 'MANAGER', 'OWNER']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['STAFF', 'MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
           <Route path="/staff" element={<StaffLayout />}>
             <Route index element={<Navigate to="/staff/dashboard" replace />} />
             <Route path="dashboard" element={<StaffDashboard />} />
@@ -56,7 +57,7 @@ export const App: React.FC = () => {
         </Route>
 
         {/* Protected Manager Layout Group (Desktop Administrative Cockpit) */}
-        <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'OWNER']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
           <Route path="/manager" element={<ManagerLayout />}>
             <Route index element={<Navigate to="/manager/dashboard" replace />} />
             <Route path="dashboard" element={<ManagerDashboard />} />

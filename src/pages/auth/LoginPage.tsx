@@ -47,9 +47,9 @@ export const LoginPage: React.FC = () => {
         password: password.trim(),
       });
 
-      const userRole = response.user?.role || 'STAFF';
+      const userRole = (response.user?.role || 'STAFF').toUpperCase();
       
-      if (userRole === 'MANAGER' || userRole === 'OWNER') {
+      if (userRole === 'MANAGER' || userRole === 'OWNER' || userRole === 'SUPER_ADMIN') {
         navigate('/manager/dashboard', { replace: true });
       } else {
         navigate('/staff/dashboard', { replace: true });

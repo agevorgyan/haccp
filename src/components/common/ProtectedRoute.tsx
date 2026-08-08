@@ -21,10 +21,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, ch
   }
 
   if (allowedRoles && allowedRoles.length > 0 && currentUser) {
-    const hasRole = allowedRoles.includes(currentUser.role);
+    const userRole = (currentUser.role || '').toUpperCase();
+    const hasRole = allowedRoles.some((r) => r.toUpperCase() === userRole);
     if (!hasRole) {
       // Direct user to their appropriate role home if attempting unauthorized route access
-      const defaultPath = currentUser.role === 'STAFF' ? '/staff/dashboard' : '/manager/dashboard';
+      const defaultPath = (userRole === 'MANAGER' || userRole === 'OWNER' || userRole === 'SUPER_ADMIN')
+        ? '/manager/dashboard'
+        : '/staff/dashboard';
       return <Navigate to={defaultPath} replace />;
     }
   }

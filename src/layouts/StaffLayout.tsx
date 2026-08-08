@@ -38,6 +38,11 @@ export const StaffLayout: React.FC = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
 
+  const currentUser = authService.getCurrentUser();
+  const staffName = currentUser
+    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || currentUser.phone || 'Operator'
+    : 'Chef Marco';
+
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'am' ? 'en' : 'am');
   };
@@ -68,7 +73,7 @@ export const StaffLayout: React.FC = () => {
               <span>•</span>
               <span className="flex items-center gap-1 text-slate-300">
                 <UserCheck className="w-3 h-3 text-slate-400" />
-                Chef Marco
+                {staffName}
               </span>
             </div>
           </div>

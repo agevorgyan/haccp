@@ -27,6 +27,7 @@ import {
   MOCK_TEMP_TRENDS, 
   MOCK_BRANCH_PERFORMANCE,
 } from '../../data/managerMockData';
+import { authService } from '../../services/authService';
 import type { CriticalViolation } from '../../data/managerMockData';
 
 /**
@@ -35,6 +36,11 @@ import type { CriticalViolation } from '../../data/managerMockData';
 export const ManagerDashboard: React.FC = () => {
   const { t } = useTranslation();
   const [violations, setViolations] = useState<CriticalViolation[]>(MOCK_CRITICAL_VIOLATIONS);
+
+  const currentUser = authService.getCurrentUser();
+  const displayName = currentUser
+    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || currentUser.phone || 'Manager'
+    : 'Manager';
 
   // Handle status toggle for demonstration
   const handleResolveViolation = (id: string) => {
@@ -82,7 +88,7 @@ export const ManagerDashboard: React.FC = () => {
             </span>
           </div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight mt-0.5">
-            Welcome, Elena Rostova
+            Welcome, {displayName}
           </h1>
           <p className="text-xs text-slate-400 mt-1">
             {t('manager.dashboardSub')}

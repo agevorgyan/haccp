@@ -153,8 +153,10 @@ export const UserManagementPage: React.FC = () => {
   // Filtered users search
   const filteredUsers = users.filter((u) => {
     const q = searchQuery.toLowerCase();
-    const name = `${u.firstName} ${u.lastName}`.toLowerCase();
-    return name.includes(q) || u.phone.toLowerCase().includes(q) || u.role.toLowerCase().includes(q);
+    const name = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+    const phoneStr = (u.phone || '').toLowerCase();
+    const roleStr = (u.role || '').toLowerCase();
+    return name.includes(q) || phoneStr.includes(q) || roleStr.includes(q);
   });
 
   const renderRoleBadge = (userRole: UserItem['role']) => {

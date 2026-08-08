@@ -50,6 +50,21 @@ export const ManagerLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [selectedVenue, setSelectedVenue] = useState<string>('All Locations (3)');
 
+  const currentUser = authService.getCurrentUser();
+  const displayName = currentUser
+    ? `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || currentUser.phone || 'Admin'
+    : 'Admin';
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase() || 'AD';
+
+  const roleKey = currentUser?.role ? `common.roles.${currentUser.role.toLowerCase()}` : 'common.roles.manager';
+  const roleLabel = t(roleKey, currentUser?.role || 'MANAGER');
+
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'am' ? 'en' : 'am');
   };
@@ -151,12 +166,12 @@ export const ManagerLayout: React.FC = () => {
         <div className="p-3 border-t border-slate-800/80 bg-slate-950/60">
           <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center border border-slate-600">
-                ES
+              <div className="w-8 h-8 rounded-full bg-emerald-700/80 text-emerald-100 font-bold text-xs flex items-center justify-center border border-emerald-600/50">
+                {initials}
               </div>
               <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                <p className="text-xs font-semibold text-slate-200 leading-tight">Elena Rostova</p>
-                <p className="text-[10px] text-slate-400 leading-tight">{t('common.roles.manager')}</p>
+                <p className="text-xs font-semibold text-slate-200 leading-tight">{displayName}</p>
+                <p className="text-[10px] text-slate-400 leading-tight">{roleLabel}</p>
               </div>
             </div>
             <button

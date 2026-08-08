@@ -67,12 +67,18 @@ export class AuthService {
       const hashedPassword = await bcrypt.hash('1234', 10);
       user = this.userRepository.create({
         firstName: 'Avetis',
-        lastName: 'Manager',
+        lastName: 'Owner',
         phone: '+37491111111',
         passwordHash: hashedPassword,
         role: UserRole.OWNER,
         organization: org,
       });
+      await this.userRepository.save(user);
+    } else {
+      user.role = UserRole.OWNER;
+      if (!user.organization) {
+        user.organization = org;
+      }
       await this.userRepository.save(user);
     }
 
