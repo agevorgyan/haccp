@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,14 +29,17 @@ interface NavItem {
   badge?: string;
 }
 
-const MANAGER_NAV_ITEMS: NavItem[] = [
+const TOP_NAV_ITEMS: NavItem[] = [
   { path: '/manager/dashboard', key: 'nav.executiveDashboard', icon: LayoutDashboard },
   { path: '/manager/reports', key: 'nav.auditReports', icon: FileSpreadsheet, badge: 'PDF' },
-  { path: '/manager/users', key: 'nav.userManagement', icon: Users },
   { path: '/manager/equipment', key: 'nav.sensoryEquipment', icon: ThermometerSnowflake },
-  { path: '/manager/languages', key: 'nav.languageManagement', icon: Globe },
   { path: '/manager/locations', key: 'nav.multiVenueOverview', icon: Building2 },
+];
+
+const SETTINGS_SUB_ITEMS: NavItem[] = [
   { path: '/manager/settings', key: 'nav.complianceSettings', icon: Settings },
+  { path: '/manager/users', key: 'nav.userManagement', icon: Users },
+  { path: '/manager/languages', key: 'nav.languageManagement', icon: Globe },
 ];
 
 /**
@@ -49,6 +52,16 @@ export const ManagerLayout: React.FC = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [selectedVenue, setSelectedVenue] = useState<string>('All Locations (3)');
+
+  const isSettingsActive = SETTINGS_SUB_ITEMS.some((item) => location.pathname === item.path);
+
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(() => isSettingsActive);
+
+  useEffect(() => {
+    if (isSettingsActive) {
+      setSettingsOpen(true);
+    }
+  }, [location.pathname, isSettingsActive]);
 
   const currentUser = authService.getCurrentUser();
   const displayName = currentUser
@@ -133,7 +146,7 @@ export const ManagerLayout: React.FC = () => {
 
         {/* Sidebar Navigation Links */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {MANAGER_NAV_ITEMS.map((item) => {
+          {TOP_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
 
@@ -160,6 +173,54 @@ export const ManagerLayout: React.FC = () => {
               </NavLink>
             );
           })}
+
+          {/* Settings Section Header & Collapsible Submenu */}
+          <div className="pt-2">
+            <button
+              onClick={() => setSettingsOpen((prev) => !prev)}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                isSettingsActive
+                  ? 'text-emerald-400 bg-slate-900/90 font-semibold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                <span>{t('nav.complianceSettings')}</span>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                  settingsOpen ? 'rotate-180 text-emerald-400' : ''
+                }`}
+              />
+            </button>
+
+            {/* Nested Settings Submenu */}
+            {settingsOpen && (
+              <div className="ml-3 pl-3 mt-1 space-y-1 border-l border-slate-800/80">
+                {SETTINGS_SUB_ITEMS.map((subItem) => {
+                  const SubIcon = subItem.icon;
+                  const isSubActive = location.pathname === subItem.path;
+
+                  return (
+                    <NavLink
+                      key={subItem.path}
+                      to={subItem.path}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                        isSubActive
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold'
+                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                      }`}
+                    >
+                      <SubIcon className={`w-3.5 h-3.5 ${isSubActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                      <span>{t(subItem.key)}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* User Account / Manager Profile */}
