@@ -1,12 +1,12 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { Organization } from '../organizations/entities/organization.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthenticatedUser } from '../auth/strategies/jwt.strategy';
+import { TenantContext } from '../../common/decorators/current-tenant.decorator';
 
 @Injectable()
 export class UsersService {
@@ -18,9 +18,20 @@ export class UsersService {
   ) {}
 
   /**
-   * Fetch all registered system users
+   * Fetch system users scoped strictly by tenant organization ID.
+   * SUPER_ADMIN can view all organizations' users; all other roles are strictly isolated.
    */
-  async findAll(): Promise<User[]> {
+  async findAll(tenant?: TenantContext): Promise<User[]> {
+    const isSuperAdmin = tenant?.role === UserRole.SUPER_ADMIN;
+
+    if (tenant && tenant.organizationId && !isSuperAdmin) {
+      return this.userRepository.find({
+        where: { organization: { id: tenant.organizationId } },
+        relations: ['organization'],
+        order: { createdAt: 'DESC' },
+      });
+    }
+
     return this.userRepository.find({
       relations: ['organization'],
       order: { createdAt: 'DESC' },
@@ -28,16 +39,25 @@ export class UsersService {
   }
 
   /**
-   * Find user by UUID primary key
+   * Find user by UUID primary key with strict tenant organization scoping
    */
-  async findById(id: string): Promise<User> {
+  async findById(id: string, tenant?: TenantContext): Promise<User> {
+    const isSuperAdmin = tenant?.role === UserRole.SUPER_ADMIN;
+    
+    const whereCondition: any = { id };
+    if (tenant && tenant.organizationId && !isSuperAdmin) {
+      whereCondition.organization = { id: tenant.organizationId };
+    }
+
     const user = await this.userRepository.findOne({
-      where: { id },
+      where: whereCondition,
       relations: ['organization'],
     });
+
     if (!user) {
-      throw new NotFoundException(`User with ID "${id}" not found.`);
+      throw new NotFoundException(`User with ID "${id}" not found or unauthorized.`);
     }
+
     return user;
   }
 
@@ -52,9 +72,10 @@ export class UsersService {
   }
 
   /**
-   * Create a new user with bcrypt hashed password
+   * Create a new user account with bcrypt hashed password.
+   * Forces organizationId from tenant context to prevent client parameter tampering.
    */
-  async create(dto: CreateUserDto, currentUser?: AuthenticatedUser): Promise<User> {
+  async create(dto: CreateUserDto, tenant?: TenantContext): Promise<User> {
     // 1. Check for duplicate phone number
     const existing = await this.userRepository.findOne({ where: { phone: dto.phone } });
     if (existing) {
@@ -64,18 +85,24 @@ export class UsersService {
     // 2. Hash raw PIN / Password with bcrypt
     const passwordHash = await bcrypt.hash(dto.password, 10);
 
-    // 3. Resolve Organization
-    const targetOrgId = dto.organizationId || currentUser?.organizationId;
+    // 3. Resolve Organization safely via server-side tenant context
+    const isSuperAdmin = tenant?.role === UserRole.SUPER_ADMIN;
+    const targetOrgId = isSuperAdmin && dto.organizationId ? dto.organizationId : tenant?.organizationId;
+
     let organization: Organization | null = null;
-    
+
     if (targetOrgId) {
       organization = await this.organizationRepository.findOne({ where: { id: targetOrgId } });
     }
 
     if (!organization) {
-      // Fallback to first available organization if not specified
+      // Fallback to first available organization if none provided (dev seeding)
       const orgs = await this.organizationRepository.find({ take: 1 });
       organization = orgs[0] || null;
+    }
+
+    if (!organization) {
+      throw new ForbiddenException('Cannot create user: Valid organization tenant reference required.');
     }
 
     // 4. Build and save user
@@ -85,20 +112,20 @@ export class UsersService {
       phone: dto.phone,
       passwordHash,
       role: dto.role,
-      organization: organization || undefined,
+      organization,
     });
 
     const saved = await this.userRepository.save(newUser);
-    
+
     // Return re-fetched entity with relations
-    return this.findById(saved.id);
+    return this.findById(saved.id, tenant);
   }
 
   /**
-   * Update existing user configuration
+   * Update existing user configuration scoped to tenant organization
    */
-  async update(id: string, dto: UpdateUserDto): Promise<User> {
-    const user = await this.findById(id);
+  async update(id: string, dto: UpdateUserDto, tenant?: TenantContext): Promise<User> {
+    const user = await this.findById(id, tenant);
 
     // If phone number is updated, check for conflicts
     if (dto.phone && dto.phone !== user.phone) {
@@ -118,7 +145,8 @@ export class UsersService {
       user.passwordHash = await bcrypt.hash(dto.password.trim(), 10);
     }
 
-    if (dto.organizationId) {
+    // Only SUPER_ADMIN can reassign user organization
+    if (dto.organizationId && tenant?.role === UserRole.SUPER_ADMIN) {
       const org = await this.organizationRepository.findOne({ where: { id: dto.organizationId } });
       if (org) {
         user.organization = org;
@@ -126,14 +154,14 @@ export class UsersService {
     }
 
     await this.userRepository.save(user);
-    return this.findById(id);
+    return this.findById(id, tenant);
   }
 
   /**
-   * Delete user account
+   * Delete user account scoped strictly to tenant organization
    */
-  async remove(id: string): Promise<{ success: boolean; id: string }> {
-    const user = await this.findById(id);
+  async remove(id: string, tenant?: TenantContext): Promise<{ success: boolean; id: string }> {
+    const user = await this.findById(id, tenant);
     await this.userRepository.remove(user);
     return { success: true, id };
   }

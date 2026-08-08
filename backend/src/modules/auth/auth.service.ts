@@ -20,7 +20,6 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { phone },
       relations: ['organization'],
-      select: ['id', 'phone', 'passwordHash', 'role', 'firstName', 'lastName']
     });
     if (user && (await bcrypt.compare(pass, user.passwordHash))) {
       return user;
