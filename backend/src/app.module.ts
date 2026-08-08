@@ -5,6 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { LocalizationModule } from './modules/localization/localization.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { AuditModule } from './modules/audit/audit.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -53,6 +54,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     AuthModule,
     LocalizationModule,
     NotificationsModule,
+    AuditModule,
   ],
   controllers: [],
   providers: [],

@@ -6,7 +6,8 @@ import {
   Delete, 
   Body, 
   Param, 
-  UseGuards 
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,6 +17,8 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from './entities/user.entity';
 import { CurrentTenant, TenantContext } from '../../common/decorators/current-tenant.decorator';
+import { AuditLog } from '../../common/decorators/audit-log.decorator';
+import { AuditInterceptor } from '../../common/interceptors/audit.interceptor';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -46,6 +49,8 @@ export class UsersController {
    * Register a new user account bound to tenant organization
    */
   @Post()
+  @UseInterceptors(AuditInterceptor)
+  @AuditLog('CREATE', 'User')
   async create(
     @Body() dto: CreateUserDto,
     @CurrentTenant() tenant: TenantContext,
@@ -58,6 +63,8 @@ export class UsersController {
    * Update user details or role permissions within tenant organization
    */
   @Put(':id')
+  @UseInterceptors(AuditInterceptor)
+  @AuditLog('UPDATE', 'User')
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateUserDto,
@@ -71,6 +78,8 @@ export class UsersController {
    * Delete user account within tenant organization
    */
   @Delete(':id')
+  @UseInterceptors(AuditInterceptor)
+  @AuditLog('DELETE', 'User')
   async remove(
     @Param('id') id: string,
     @CurrentTenant() tenant: TenantContext,
