@@ -35,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * Attaches sanitized user claims directly to HTTP request object (req.user).
    */
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
-    if (!payload.sub || !payload.organizationId) {
+    if (!payload.sub) {
       throw new UnauthorizedException('Invalid JWT payload tokens');
     }
 
@@ -43,7 +43,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       userId: payload.sub,
       phone: payload.phone,
       role: payload.role,
-      organizationId: payload.organizationId,
+      organizationId: payload.organizationId || '',
     };
   }
 }

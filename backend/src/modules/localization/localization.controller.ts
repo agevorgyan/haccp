@@ -34,17 +34,8 @@ export class LocalizationController {
     return this.localizationService.getAllTranslations();
   }
 
-  /**
-   * GET /api/v1/translations/:code
-   * Returns key-value translations object for specified language (e.g. /translations/en)
-   */
-  @Get(':code')
-  async getTranslationsByLanguage(@Param('code') code: string) {
-    return this.localizationService.getTranslationsByLanguage(code);
-  }
-
   // =========================================================================
-  // SUPER ADMIN RBAC PROTECTED ENDPOINTS
+  // RBAC PROTECTED ENDPOINTS (SUPER_ADMIN, OWNER, MANAGER)
   // =========================================================================
 
   /**
@@ -52,8 +43,19 @@ export class LocalizationController {
    * Returns list of configured languages
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER, UserRole.MANAGER)
   @Get('languages/list')
+  async getLanguagesList() {
+    return this.localizationService.getAllLanguages();
+  }
+
+  /**
+   * GET /api/v1/translations/languages
+   * Alias endpoint returning list of configured languages
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER, UserRole.MANAGER)
+  @Get('languages')
   async getLanguages() {
     return this.localizationService.getAllLanguages();
   }
@@ -63,7 +65,7 @@ export class LocalizationController {
    * Add a new language
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER, UserRole.MANAGER)
   @Post('languages')
   async createLanguage(@Body() dto: CreateLanguageDto) {
     return this.localizationService.addLanguage(dto);
@@ -74,7 +76,7 @@ export class LocalizationController {
    * Update language configuration
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER, UserRole.MANAGER)
   @Put('languages/:id')
   async updateLanguage(@Param('id') id: string, @Body() dto: UpdateLanguageDto) {
     return this.localizationService.updateLanguage(id, dto);
@@ -85,7 +87,7 @@ export class LocalizationController {
    * Delete language and associated translations
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER, UserRole.MANAGER)
   @Delete('languages/:id')
   async deleteLanguage(@Param('id') id: string) {
     return this.localizationService.deleteLanguage(id);
@@ -96,9 +98,22 @@ export class LocalizationController {
    * Bulk import / update translation keys & values for a language
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER, UserRole.MANAGER)
   @Post('bulk')
   async bulkUpsertTranslations(@Body() dto: BulkTranslationDto) {
     return this.localizationService.bulkUpsertTranslations(dto);
+  }
+
+  // =========================================================================
+  // DYNAMIC PARAMETER ENDPOINTS (MUST BE AT THE END TO PREVENT ROUTE COLLISIONS)
+  // =========================================================================
+
+  /**
+   * GET /api/v1/translations/:code
+   * Returns key-value translations object for specified language (e.g. /translations/en)
+   */
+  @Get(':code')
+  async getTranslationsByLanguage(@Param('code') code: string) {
+    return this.localizationService.getTranslationsByLanguage(code);
   }
 }

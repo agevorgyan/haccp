@@ -19,7 +19,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
     if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.set('Authorization', `Bearer ${token}`);
     }
     return config;
   },
@@ -38,7 +38,6 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
 
-      // Dispatch event or window reload if unauthenticated
       console.warn('Session expired or unauthorized request. Session cleared.');
     }
     return Promise.reject(error);
