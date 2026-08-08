@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -27,6 +29,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // Global Transform Interceptor: Wraps all REST responses into { "success": true, "data": payload }
+  app.useGlobalInterceptors(new TransformInterceptor());
+
+  // Global Exception Filter: Formats all errors into { "success": false, "error": { "code", "message", "details" }, "requestId" }
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Global API Prefix
   app.setGlobalPrefix('api/v1');

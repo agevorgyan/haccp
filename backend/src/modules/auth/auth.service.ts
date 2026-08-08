@@ -17,11 +17,14 @@ export class AuthService {
   ) { }
 
   async validateUser(phone: string, pass: string): Promise<User | null> {
-    const user = await this.userRepository.findOne({
-      where: { phone },
-      relations: ['organization'],
-    });
-    if (user && (await bcrypt.compare(pass, user.passwordHash))) {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.passwordHash')
+      .leftJoinAndSelect('user.organization', 'organization')
+      .where('user.phone = :phone', { phone })
+      .getOne();
+
+    if (user && user.passwordHash && (await bcrypt.compare(pass, user.passwordHash))) {
       return user;
     }
     return null;
@@ -60,7 +63,11 @@ export class AuthService {
       } as any);
     }
 
-    let user = await this.userRepository.findOne({ where: { phone: '+37491111111' } });
+    let user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.passwordHash')
+      .where('user.phone = :phone', { phone: '+37491111111' })
+      .getOne();
 
     if (!user) {
       const hashedPassword = await bcrypt.hash('1234', 10);
@@ -77,6 +84,9 @@ export class AuthService {
       await this.userRepository.save(user);
     } else {
       user.role = UserRole.OWNER;
+      if (!user.passwordHash) {
+        user.passwordHash = await bcrypt.hash('1234', 10);
+      }
       if (!user.email) {
         user.email = 'avetis.owner@safekitchen.app';
       }
