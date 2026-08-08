@@ -1,17 +1,16 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm'; // <--- Ավելացրու սա
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { User } from '../users/entities/user.entity';           // <--- User entity
-import { Organization } from '../organizations/entities/organization.entity'; // <--- Organization entity
+import { User } from '../users/entities/user.entity';
+import { Organization } from '../organizations/entities/organization.entity';
+import { JwtStrategy } from './strategies/jwt.strategy'; // <--- Պարտադիր է ներմուծել
 
 @Module({
   imports: [
-    // Ավելացնում ենք սա, որպեսզի Auth-ը հասկանա User և Organization բազայի աղյուսակները
     TypeOrmModule.forFeature([User, Organization]),
-
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,7 +23,7 @@ import { Organization } from '../organizations/entities/organization.entity'; //
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy], // <--- Ավելացրու JwtStrategy-ն այստեղ
   exports: [AuthService],
 })
 export class AuthModule { }
