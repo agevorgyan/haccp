@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { WifiOff, Wifi } from 'lucide-react';
 
 /**
  * OfflineBadge Component
- * Monitors online/offline network state to alert kitchen staff when operating in offline mode.
- * Critical for HACCP compliance logs so users know logs are cached locally before sync.
  */
 export const OfflineBadge: React.FC = () => {
+  const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [showRestored, setShowRestored] = useState<boolean>(false);
 
@@ -47,14 +47,15 @@ export const OfflineBadge: React.FC = () => {
       {isOnline ? (
         <>
           <Wifi className="w-3.5 h-3.5" />
-          <span>Back Online — Syncing</span>
+          <span>{t('common.online')}</span>
         </>
       ) : (
         <>
           <WifiOff className="w-3.5 h-3.5" />
-          <span>Offline — Logs Saved Locally</span>
+          <span>{t('common.offline')}</span>
         </>
       )}
     </div>
   );
 };
+

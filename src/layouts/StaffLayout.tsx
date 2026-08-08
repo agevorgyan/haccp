@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   LayoutDashboard, 
   Thermometer, 
@@ -8,38 +9,38 @@ import {
   UserCheck, 
   ChevronRight,
   Plus,
-  LogOut
+  LogOut,
+  Globe
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
 import { authService } from '../services/authService';
 
 interface NavItem {
   path: string;
-  label: string;
+  key: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number;
 }
 
 const STAFF_NAV_ITEMS: NavItem[] = [
-  { path: '/staff/dashboard', label: 'Shift Overview', icon: LayoutDashboard },
-  { path: '/staff/temp-check', label: 'Temp Log', icon: Thermometer, badge: 3 },
-  { path: '/staff/logs', label: 'Safety Tasks', icon: ClipboardCheck },
-  { path: '/staff/incidents', label: 'Incidents', icon: AlertTriangle },
+  { path: '/staff/dashboard', key: 'nav.executiveDashboard', icon: LayoutDashboard },
+  { path: '/staff/temp-check', key: 'nav.sensoryEquipment', icon: Thermometer, badge: 3 },
+  { path: '/staff/logs', key: 'staff.scheduledTasksTitle', icon: ClipboardCheck },
+  { path: '/staff/incidents', key: 'manager.recentDeviations', icon: AlertTriangle },
 ];
 
 /**
  * StaffLayout Component
  * Mobile-first operational interface designed specifically for line cooks, kitchen supervisors,
  * and food safety operators working on smartphones or small tablets in kitchen environments.
- * 
- * Architectural Highlights:
- * 1. Ergonomic Bottom Navigation with min 48px touch targets for greasy/gloved hands.
- * 2. Sticky Top Bar showing active venue, operator shift state, and real-time offline status.
- * 3. Prominent Quick Action FAB for instantaneous temperature or hygiene logging.
- * 4. High-contrast typography & visual states for fast readability in intense kitchen lighting.
  */
 export const StaffLayout: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const location = useLocation();
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'am' ? 'en' : 'am');
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 select-none pb-20">
@@ -73,12 +74,17 @@ export const StaffLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* Header Right Tools / Logout */}
+        {/* Header Right Tools / Language Switcher / Logout */}
         <div className="flex items-center gap-2">
-          <div className="hidden sm:flex flex-col items-end text-xs mr-2">
-            <span className="text-slate-400">Shift Compliance</span>
-            <span className="text-emerald-400 font-bold text-sm">94%</span>
-          </div>
+          {/* Language Switcher Button */}
+          <button
+            onClick={toggleLanguage}
+            className="p-1.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer border border-slate-700"
+            title="Toggle Language"
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>{i18n.language === 'am' ? 'AM' : 'EN'}</span>
+          </button>
 
           <button
             onClick={() => {
@@ -86,8 +92,8 @@ export const StaffLayout: React.FC = () => {
               window.location.href = '/login';
             }}
             className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
-            title="Sign Out"
-            aria-label="Sign Out"
+            title={t('nav.logout')}
+            aria-label={t('nav.logout')}
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -104,8 +110,8 @@ export const StaffLayout: React.FC = () => {
         <NavLink
           to="/staff/temp-check"
           className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-xl flex items-center justify-center transition-all transform active:scale-95 focus:outline-none focus:ring-4 focus:ring-emerald-400/50"
-          aria-label="Quick Temperature Check"
-          title="New Temperature Reading"
+          aria-label={t('staff.logTemperatureBtn')}
+          title={t('staff.logTemperatureBtn')}
         >
           <Plus className="w-7 h-7 stroke-[2.5]" />
         </NavLink>
@@ -140,7 +146,7 @@ export const StaffLayout: React.FC = () => {
                   )}
                 </div>
                 <span className="text-[11px] leading-tight mt-1 font-medium tracking-tight">
-                  {item.label}
+                  {t(item.key)}
                 </span>
               </NavLink>
             );
@@ -150,3 +156,6 @@ export const StaffLayout: React.FC = () => {
     </div>
   );
 };
+
+export default StaffLayout;
+

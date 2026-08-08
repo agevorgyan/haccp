@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   CheckCircle2, 
   Clock, 
@@ -22,9 +23,9 @@ const LOCAL_STORAGE_KEY = 'haccp_daily_logs';
 /**
  * StaffDashboard Component
  * Core mobile interface for kitchen staff.
- * Features robust offline-first local persistence (localStorage) so filled logs survive page refreshes.
  */
 export const StaffDashboard: React.FC = () => {
+  const { t } = useTranslation();
   // Lazy state initializer: Loads cached logs from localStorage first for instant offline rendering
   const [logs, setLogs] = useState<DailyLog[]>(() => {
     try {
@@ -226,9 +227,9 @@ export const StaffDashboard: React.FC = () => {
         {/* Shift Progress */}
         <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
           <div className="flex justify-between items-baseline text-xs">
-            <span className="text-slate-400 font-semibold">Shift Progress</span>
+            <span className="text-slate-400 font-semibold">{t('staff.shiftStats')}</span>
             <span className="font-extrabold text-emerald-400">
-              {completedCount} of {totalTasks} Tasks ({progressPercent}%)
+              {completedCount} of {totalTasks} ({progressPercent}%)
             </span>
           </div>
           <div className="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-800">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   LayoutDashboard,
   FileSpreadsheet,
@@ -15,42 +16,43 @@ import {
   X,
   Download,
   AlertCircle,
-  Globe
+  Globe,
+  Users
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
 import { authService } from '../services/authService';
 
 interface NavItem {
   path: string;
-  label: string;
+  key: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
 }
 
 const MANAGER_NAV_ITEMS: NavItem[] = [
-  { path: '/manager/dashboard', label: 'Executive Dashboard', icon: LayoutDashboard },
-  { path: '/manager/reports', label: 'HACCP Audit Reports', icon: FileSpreadsheet, badge: 'PDF' },
-  { path: '/manager/equipment', label: 'Sensory Equipment', icon: ThermometerSnowflake },
-  { path: '/manager/languages', label: 'Language Management', icon: Globe },
-  { path: '/manager/locations', label: 'Multi-Venue Overview', icon: Building2 },
-  { path: '/manager/settings', label: 'Compliance Settings', icon: Settings },
+  { path: '/manager/dashboard', key: 'nav.executiveDashboard', icon: LayoutDashboard },
+  { path: '/manager/reports', key: 'nav.auditReports', icon: FileSpreadsheet, badge: 'PDF' },
+  { path: '/manager/users', key: 'nav.userManagement', icon: Users },
+  { path: '/manager/equipment', key: 'nav.sensoryEquipment', icon: ThermometerSnowflake },
+  { path: '/manager/languages', key: 'nav.languageManagement', icon: Globe },
+  { path: '/manager/locations', key: 'nav.multiVenueOverview', icon: Building2 },
+  { path: '/manager/settings', key: 'nav.complianceSettings', icon: Settings },
 ];
 
 /**
  * ManagerLayout Component
  * Desktop/Tablet-first administrative cockpit engineered for restaurant owners, quality managers,
  * and food safety auditors who need macro analytics, compliance reports, and audit trail exports.
- * 
- * Architectural Highlights:
- * 1. Persistent Sidebar with responsive mobile overlay state.
- * 2. Multi-Venue Context Switcher for chain managers handling multiple restaurant branches.
- * 3. Real-time Critical Control Point (CCP) alert badge notification center.
- * 4. High-density data grid layout space for tables, analytics charts, and PDF generation tools.
  */
 export const ManagerLayout: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [selectedVenue, setSelectedVenue] = useState<string>('All Locations (3)');
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'am' ? 'en' : 'am');
+  };
 
   return (
     <div className="min-h-screen flex bg-slate-900 text-slate-100 antialiased selection:bg-emerald-500 selection:text-white">
@@ -97,7 +99,7 @@ export const ManagerLayout: React.FC = () => {
         {/* Venue Context Switcher */}
         <div className="p-4 border-b border-slate-800/60">
           <label className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 mb-1.5 block">
-            Active Context
+            {t('manager.locationPerformance')}
           </label>
           <div className="relative">
             <select
@@ -133,7 +135,7 @@ export const ManagerLayout: React.FC = () => {
               >
                 <div className="flex items-center gap-3">
                   <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
+                  <span>{t(item.key)}</span>
                 </div>
                 {item.badge && (
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
@@ -154,7 +156,7 @@ export const ManagerLayout: React.FC = () => {
               </div>
               <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                 <p className="text-xs font-semibold text-slate-200 leading-tight">Elena Rostova</p>
-                <p className="text-[10px] text-slate-400 leading-tight">Head of Compliance</p>
+                <p className="text-[10px] text-slate-400 leading-tight">{t('common.roles.manager')}</p>
               </div>
             </div>
             <button
@@ -163,8 +165,8 @@ export const ManagerLayout: React.FC = () => {
                 window.location.href = '/login';
               }}
               className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-900 transition-colors cursor-pointer"
-              title="Log Out"
-              aria-label="Log Out"
+              title={t('nav.logout')}
+              aria-label={t('nav.logout')}
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -190,7 +192,7 @@ export const ManagerLayout: React.FC = () => {
               <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
               <input
                 type="text"
-                placeholder="Search CCP logs, temperature sensors, staff..."
+                placeholder={t('common.search')}
                 className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
               />
             </div>
@@ -198,10 +200,20 @@ export const ManagerLayout: React.FC = () => {
 
           {/* Quick Action Header Tools */}
           <div className="flex items-center gap-3">
+            {/* Language Switcher */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold border border-slate-700 transition-colors cursor-pointer"
+              title="Toggle Application Language"
+            >
+              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{i18n.language === 'am' ? 'AM (ՀԱՅ)' : 'EN'}</span>
+            </button>
+
             {/* Quick Export Button */}
             <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors">
               <Download className="w-3.5 h-3.5 text-slate-400" />
-              <span>Export Audit Trail</span>
+              <span>{t('common.exportAudit')}</span>
             </button>
 
             {/* Critical Alert Center */}
@@ -215,12 +227,12 @@ export const ManagerLayout: React.FC = () => {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500"></span>
             </button>
 
-            {/* Direct Link to Staff Kitchen Mode for testing/demo */}
+            {/* Direct Link to Staff Kitchen Mode */}
             <NavLink
               to="/staff/dashboard"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/20 transition-all"
             >
-              <span>Switch to Kitchen Mode</span>
+              <span>{t('nav.kitchenMode')}</span>
             </NavLink>
           </div>
         </header>
@@ -233,10 +245,10 @@ export const ManagerLayout: React.FC = () => {
               <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-rose-300">
-                  Critical Control Point Alert (CCP 2B)
+                  {t('manager.activeCCPAlert')}
                 </h4>
                 <p className="text-xs text-rose-200/90 mt-0.5">
-                  Walk-in Freezer #2 recorded 4.2°C (threshold: max -18°C) at Downtown Bistro. Action required immediately.
+                  {t('manager.ccpAlertDetail')}
                 </p>
               </div>
             </div>
@@ -244,7 +256,7 @@ export const ManagerLayout: React.FC = () => {
               to="/manager/reports"
               className="shrink-0 text-xs font-semibold underline hover:text-white"
             >
-              Investigate Log
+              {t('manager.investigateLog')}
             </NavLink>
           </div>
 
@@ -254,3 +266,6 @@ export const ManagerLayout: React.FC = () => {
     </div>
   );
 };
+
+export default ManagerLayout;
+

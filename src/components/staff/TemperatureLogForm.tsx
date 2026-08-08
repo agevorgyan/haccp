@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Thermometer, 
   AlertTriangle, 
@@ -20,18 +21,13 @@ interface TemperatureLogFormProps {
 /**
  * TemperatureLogForm Component
  * Specialized touch-optimized interface for kitchen employees filling out CCP temperature logs.
- * 
- * Key Features:
- * 1. Ergonomic +/- steppers with 0.1°C precision for fast one-hand entry.
- * 2. Instant visual validation against HACCP safe ranges (default +2.0°C to +6.0°C).
- * 3. Dynamic Corrective Action mandatory selection when out-of-range breach occurs.
- * 4. High-contrast touch controls with min 48px target bounds.
  */
 export const TemperatureLogForm: React.FC<TemperatureLogFormProps> = ({
   log,
   onSaveSuccess,
   onCancel,
 }) => {
+  const { t } = useTranslation();
   // Safe bounds (default to +2°C to +6°C for standard refrigeration if unspecified)
   const minSafe = log?.safeRange?.min ?? 2.0;
   const maxSafe = log?.safeRange?.max ?? 6.0;
@@ -339,12 +335,12 @@ export const TemperatureLogForm: React.FC<TemperatureLogFormProps> = ({
           {isSubmitting ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-              Saving HACCP Log...
+              {t('tempForm.submitting')}
             </span>
           ) : (
             <>
               <Save className="w-5 h-5 stroke-[2.5]" />
-              <span>{isOutOfRange ? 'Submit Log with Corrective Action' : 'Save & Time-Stamp Log Entry'}</span>
+              <span>{t('tempForm.submitLog')}</span>
             </>
           )}
         </button>

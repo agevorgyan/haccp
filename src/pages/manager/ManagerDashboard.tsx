@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Building2, 
   CheckCircle2, 
@@ -30,18 +31,10 @@ import type { CriticalViolation } from '../../data/managerMockData';
 
 /**
  * ManagerDashboard Component
- * 
- * ARCHITECTURAL WRAPPER NOTE:
- * This component is rendered dynamically within the <Outlet /> of `src/layouts/ManagerLayout.tsx`.
- * ManagerLayout provides:
- * 1. Persistent desktop collapsible sidebar with brand header & account badges.
- * 2. Active venue context selector (Multi-Location vs individual branch views).
- * 3. Sticky top header containing global search, real-time alert notifications, and quick action bar.
- * 4. PWA offline state banner overlay.
  */
 export const ManagerDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const [violations, setViolations] = useState<CriticalViolation[]>(MOCK_CRITICAL_VIOLATIONS);
-  const [selectedTimeframe, setSelectedTimeframe] = useState<string>('7d');
 
   // Handle status toggle for demonstration
   const handleResolveViolation = (id: string) => {
@@ -85,68 +78,33 @@ export const ManagerDashboard: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-400">
-              Executive Cockpit
+              {t('manager.dashboardTitle')}
             </span>
-            <span className="text-slate-600">•</span>
-            <span className="text-xs text-slate-400">Food Safety & HACCP Surveillance</span>
           </div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight mt-0.5">
             Welcome, Elena Rostova
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Monitoring <strong className="text-slate-200">{MOCK_SUMMARY_STATS.totalBranches} Active Branches</strong> across North Region.
+            {t('manager.dashboardSub')}
           </p>
         </div>
 
         {/* Timeframe & Export Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1">
-            <button
-              onClick={() => setSelectedTimeframe('24h')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                selectedTimeframe === '24h'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              24 Hours
-            </button>
-            <button
-              onClick={() => setSelectedTimeframe('7d')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                selectedTimeframe === '7d'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              7 Days
-            </button>
-            <button
-              onClick={() => setSelectedTimeframe('30d')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                selectedTimeframe === '30d'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              30 Days
-            </button>
-          </div>
-
           <button className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all">
             <Download className="w-4 h-4" />
-            <span>Generate Executive Summary</span>
+            <span>{t('common.exportPdf')}</span>
           </button>
         </div>
       </div>
 
       {/* Summary KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* KPI 1: Active Branches */}
+        {/* KPI 1: Overall Compliance Score */}
         <div className="bg-slate-950/80 p-6 rounded-3xl border border-slate-800/80 shadow-sm hover:border-slate-700 transition-all group">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Active Branches
+              {t('manager.metrics.overallCompliance')}
             </span>
             <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Building2 className="w-5 h-5" />

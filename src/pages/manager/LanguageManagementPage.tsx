@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Globe, 
   Plus, 
@@ -17,10 +18,9 @@ import { localizationService, type LanguageItem } from '../../services/localizat
 
 /**
  * LanguageManagementPage Component
- * Administrative interface for SUPER_ADMIN & OWNER roles to manage languages, toggle activation,
- * and bulk update translation key-values.
  */
 export const LanguageManagementPage: React.FC = () => {
+  const { t } = useTranslation();
   const [languages, setLanguages] = useState<LanguageItem[]>([]);
   const [selectedLangCode, setSelectedLangCode] = useState<string>('en');
   const [translationsMap, setTranslationsMap] = useState<Record<string, Record<string, string>>>({});
@@ -180,10 +180,10 @@ export const LanguageManagementPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              Localization & Translation Cockpit
+              {t('languages.title')}
             </h1>
             <p className="text-xs text-slate-400 mt-0.5">
-              Super Admin & Owner Control Panel for multi-language SaaS configuration
+              {t('languages.subtitle')}
             </p>
           </div>
         </div>
@@ -193,7 +193,7 @@ export const LanguageManagementPage: React.FC = () => {
           className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Add New Language</span>
+          <span>{t('languages.addBtn')}</span>
         </button>
       </div>
 
@@ -219,13 +219,13 @@ export const LanguageManagementPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
               <Languages className="w-4 h-4 text-emerald-400" />
-              <span>Configured Languages ({languages.length})</span>
+              <span>{t('languages.configuredLangs')} ({languages.length})</span>
             </h2>
             <button
               onClick={fetchData}
               disabled={loading}
               className="p-1.5 rounded-lg bg-slate-900 text-slate-400 hover:text-white transition-colors"
-              title="Refresh"
+              title={t('common.refresh')}
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-emerald-400' : ''}`} />
             </button>
@@ -234,7 +234,7 @@ export const LanguageManagementPage: React.FC = () => {
           {loading ? (
             <div className="py-8 text-center text-xs text-slate-400 flex flex-col items-center gap-2">
               <Loader2 className="w-6 h-6 text-emerald-400 animate-spin" />
-              <span>Fetching language registry...</span>
+              <span>{t('languages.fetching')}</span>
             </div>
           ) : (
             <div className="space-y-2.5">
