@@ -52,7 +52,7 @@ export class LocalizationController {
    * Returns list of configured languages
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
   @Get('languages/list')
   async getLanguages() {
     return this.localizationService.getAllLanguages();
@@ -63,7 +63,7 @@ export class LocalizationController {
    * Add a new language
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
   @Post('languages')
   async createLanguage(@Body() dto: CreateLanguageDto) {
     return this.localizationService.addLanguage(dto);
@@ -74,7 +74,7 @@ export class LocalizationController {
    * Update language configuration
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
   @Put('languages/:id')
   async updateLanguage(@Param('id') id: string, @Body() dto: UpdateLanguageDto) {
     return this.localizationService.updateLanguage(id, dto);
@@ -85,7 +85,7 @@ export class LocalizationController {
    * Delete language and associated translations
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
   @Delete('languages/:id')
   async deleteLanguage(@Param('id') id: string) {
     return this.localizationService.deleteLanguage(id);
@@ -96,7 +96,7 @@ export class LocalizationController {
    * Bulk import / update translation keys & values for a language
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.SUPER_ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.OWNER)
   @Post('bulk')
   async bulkUpsertTranslations(@Body() dto: BulkTranslationDto) {
     return this.localizationService.bulkUpsertTranslations(dto);

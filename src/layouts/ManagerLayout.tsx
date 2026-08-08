@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   Download,
-  AlertCircle
+  AlertCircle,
+  Globe
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
 import { authService } from '../services/authService';
@@ -30,6 +31,7 @@ const MANAGER_NAV_ITEMS: NavItem[] = [
   { path: '/manager/dashboard', label: 'Executive Dashboard', icon: LayoutDashboard },
   { path: '/manager/reports', label: 'HACCP Audit Reports', icon: FileSpreadsheet, badge: 'PDF' },
   { path: '/manager/equipment', label: 'Sensory Equipment', icon: ThermometerSnowflake },
+  { path: '/manager/languages', label: 'Language Management', icon: Globe },
   { path: '/manager/locations', label: 'Multi-Venue Overview', icon: Building2 },
   { path: '/manager/settings', label: 'Compliance Settings', icon: Settings },
 ];

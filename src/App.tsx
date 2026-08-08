@@ -6,6 +6,7 @@ import { StaffDashboard } from './pages/staff/StaffDashboard';
 import { TempLogPage } from './pages/staff/TempLogPage';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
 import { ReportsPage } from './pages/manager/ReportsPage';
+import { LanguageManagementPage } from './pages/manager/LanguageManagementPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -61,6 +62,7 @@ export const App: React.FC = () => {
             <Route path="reports" element={<ReportsPage />} />
             <Route path="equipment" element={<ManagerDashboard />} />
             <Route path="locations" element={<ManagerDashboard />} />
+            <Route path="languages" element={<LanguageManagementPage />} />
             <Route path="settings" element={<ManagerDashboard />} />
           </Route>
         </Route>
