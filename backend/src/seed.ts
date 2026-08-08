@@ -7,7 +7,7 @@ import { Branch } from './modules/branches/entities/branch.entity';
 import { User, UserRole } from './modules/users/entities/user.entity';
 import { LogTemplate, LogTemplateStatus } from './modules/log-templates/entities/log-template.entity';
 import { FormFieldType } from './modules/log-templates/interfaces/form-field-schema.interface';
-import { LogEntry } from './modules/log-entries/entities/log-entry.entity';
+import { LogEntry, LogEntryStatus } from './modules/log-entries/entities/log-entry.entity';
 
 /**
  * Standalone Database Seeder Script
@@ -102,6 +102,26 @@ async function seed() {
     });
     await queryRunner.manager.save(logTemplate);
 
+    // 5. Create Mock Submitted LogEntry
+    console.log('📝 Creating Mock Submitted LogEntry...');
+    const entryRepo = queryRunner.manager.getRepository(LogEntry);
+    const mockEntry = entryRepo.create({
+      organizationId: org.id,
+      branchId: branch.id,
+      templateId: logTemplate.id,
+      templateVersion: logTemplate.version,
+      userId: staffUser.id,
+      timestamp: new Date(),
+      shiftId: 'MORNING_SHIFT',
+      status: LogEntryStatus.SUBMITTED,
+      data: {
+        'field-1': 3.2,
+      },
+      location: 'Main Kitchen Walk-In Fridge',
+      device: 'iOS Tablet Terminal',
+    });
+    await queryRunner.manager.save(mockEntry);
+
     await queryRunner.commitTransaction();
     console.log('✨ Database Seeding Complete!');
     console.log('----------------------------------------------------');
@@ -110,7 +130,8 @@ async function seed() {
     console.log(`- Branch       : ${branch.name} (ID: ${branch.id})`);
     console.log(`- Manager User : Phone: 099111111 | PIN: 1234 | Role: MANAGER`);
     console.log(`- Staff User   : Phone: 099222222 | PIN: 1234 | Role: STAFF`);
-    console.log(`- Log Template : ${logTemplate.name} (CCP-1, range: 0°C to 5°C)`);
+    console.log(`- Log Template : ${logTemplate.name} (v${logTemplate.version})`);
+    console.log(`- Submitted Log: ID: ${mockEntry.id} (temp: 3.2°C, status: SUBMITTED)`);
     console.log('----------------------------------------------------');
   } catch (error) {
     console.error('❌ Seeding failed with error:', error);

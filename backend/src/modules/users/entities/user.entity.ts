@@ -72,6 +72,6 @@ export class User extends BaseEntity {
   organization: Organization;
 
   // One User (kitchen employee) fills many HACCP log entries
-  @OneToMany(() => LogEntry, (logEntry) => logEntry.filledBy)
+  @OneToMany(() => LogEntry, (logEntry) => logEntry.user)
   logEntries: LogEntry[];
 }
