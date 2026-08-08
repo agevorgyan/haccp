@@ -36,8 +36,8 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
           database: configService.get<string>('DB_NAME', 'haccp_db'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           autoLoadEntities: true,
-          // Strict safeguard: DB_SYNCHRONIZE must be explicitly true AND environment must be development
-          synchronize: isDev && allowSync,
+          // Production-grade migration architecture: synchronize is permanently false
+          synchronize: false,
           logging: configService.get<boolean>('DB_LOGGING', false),
           ssl: isProduction
             ? {

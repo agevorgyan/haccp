@@ -13,8 +13,9 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "typeorm": "typeorm-ts-node-commonjs",
-    "migration:generate": "npm run typeorm migration:generate -- -d src/config/typeorm.config.ts",
-    "migration:run": "npm run typeorm migration:run -- -d src/config/typeorm.config.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/config/data-source.ts src/database/migrations/InitialMigration",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/data-source.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/config/data-source.ts",
     "seed": "npx ts-node src/seed.ts"
   },
   "dependencies": {
@@ -55,6 +56,7 @@
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/web-push": "^3.6.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }
 }
