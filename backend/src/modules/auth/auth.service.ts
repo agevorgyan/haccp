@@ -69,13 +69,21 @@ export class AuthService {
         firstName: 'Avetis',
         lastName: 'Owner',
         phone: '+37491111111',
+        email: 'avetis.owner@safekitchen.app',
         passwordHash: hashedPassword,
         role: UserRole.OWNER,
         organization: org,
+        notificationPreferences: { inApp: true, push: true, email: true, telegram: true },
       });
       await this.userRepository.save(user);
     } else {
       user.role = UserRole.OWNER;
+      if (!user.email) {
+        user.email = 'avetis.owner@safekitchen.app';
+      }
+      if (!user.notificationPreferences) {
+        user.notificationPreferences = { inApp: true, push: true, email: true, telegram: true };
+      }
       if (!user.organization) {
         user.organization = org;
       }

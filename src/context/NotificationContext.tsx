@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { authService } from '../services/authService';
-import { notificationService, type AppNotification, urlBase64ToUint8Array } from '../services/notificationService';
+import {
+  notificationService,
+  type AppNotification,
+  type UserNotificationPreferences,
+  urlBase64ToUint8Array,
+} from '../services/notificationService';
 
 interface NotificationContextType {
   notifications: AppNotification[];
@@ -9,11 +14,22 @@ interface NotificationContextType {
   loading: boolean;
   pushEnabled: boolean;
   pushLoading: boolean;
+  userPrefs: UserNotificationPreferences['preferences'];
+  email: string;
+  isTelegramConnected: boolean;
+  telegramChatId: string | null;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   enablePushNotifications: () => Promise<boolean>;
-  sendTestAlert: () => Promise<void>;
+  updateChannelPreferences: (
+    prefs: Partial<UserNotificationPreferences['preferences']>,
+    email?: string,
+  ) => Promise<void>;
+  generateTelegramCode: () => Promise<{ code: string; botUsername: string }>;
+  disconnectTelegram: () => Promise<void>;
+  sendTestAlert: (channels?: ('APP' | 'PUSH' | 'EMAIL' | 'TELEGRAM')[]) => Promise<void>;
   refreshNotifications: () => Promise<void>;
+  refreshPreferences: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -25,6 +41,16 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     return typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted';
   });
   const [pushLoading, setPushLoading] = useState<boolean>(false);
+
+  const [email, setEmail] = useState<string>('');
+  const [isTelegramConnected, setIsTelegramConnected] = useState<boolean>(false);
+  const [telegramChatId, setTelegramChatId] = useState<string | null>(null);
+  const [userPrefs, setUserPrefs] = useState<UserNotificationPreferences['preferences']>({
+    inApp: true,
+    push: true,
+    email: true,
+    telegram: true,
+  });
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
@@ -38,6 +64,21 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       console.warn('Failed to fetch notifications from backend:', err);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  const fetchPreferences = useCallback(async () => {
+    if (!authService.isAuthenticated()) return;
+    try {
+      const prefData = await notificationService.getPreferences();
+      setEmail(prefData.email || '');
+      setIsTelegramConnected(prefData.isTelegramConnected);
+      setTelegramChatId(prefData.telegramChatId);
+      if (prefData.preferences) {
+        setUserPrefs(prefData.preferences);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch notification preferences:', err);
     }
   }, []);
 
@@ -56,6 +97,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (!authService.isAuthenticated()) return;
 
     fetchNotifications();
+    fetchPreferences();
 
     const token = authService.getToken();
     if (!token) return;
@@ -74,7 +116,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       console.log('Real-time notification received via Socket.io:', newNotification);
       setNotifications((prev) => [newNotification, ...prev.filter((n) => n.id !== newNotification.id)]);
 
-      // Browser native Notification fallback if permission granted
+      // Native browser notification popup if permission granted
       if ('Notification' in window && Notification.permission === 'granted') {
         try {
           new Notification(newNotification.title, {
@@ -94,7 +136,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     return () => {
       socket.disconnect();
     };
-  }, [fetchNotifications]);
+  }, [fetchNotifications, fetchPreferences]);
 
   const markAsRead = async (id: string) => {
     try {
@@ -146,6 +188,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       }
 
       await notificationService.subscribePush(subscription.toJSON());
+      await updateChannelPreferences({ push: true });
       return true;
     } catch (err) {
       console.error('Failed to subscribe to Web Push:', err);
@@ -155,11 +198,44 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const sendTestAlert = async () => {
+  const updateChannelPreferences = async (
+    prefs: Partial<UserNotificationPreferences['preferences']>,
+    newEmail?: string,
+  ) => {
+    const updatedPrefs = { ...userPrefs, ...prefs };
+    setUserPrefs(updatedPrefs);
+    if (newEmail !== undefined) {
+      setEmail(newEmail);
+    }
     try {
-      await notificationService.sendTestAlert();
+      await notificationService.updatePreferences({
+        email: newEmail,
+        preferences: updatedPrefs,
+      });
     } catch (err) {
-      console.error('Failed to trigger test alert:', err);
+      console.error('Failed to update channel preferences:', err);
+    }
+  };
+
+  const generateTelegramCode = async () => {
+    return notificationService.generateTelegramCode();
+  };
+
+  const disconnectTelegram = async () => {
+    try {
+      await notificationService.disconnectTelegram();
+      setIsTelegramConnected(false);
+      setTelegramChatId(null);
+    } catch (err) {
+      console.error('Failed to disconnect Telegram:', err);
+    }
+  };
+
+  const sendTestAlert = async (channels?: ('APP' | 'PUSH' | 'EMAIL' | 'TELEGRAM')[]) => {
+    try {
+      await notificationService.sendTestAlert({ channels });
+    } catch (err) {
+      console.error('Failed to trigger multi-channel test alert:', err);
     }
   };
 
@@ -171,11 +247,19 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         loading,
         pushEnabled,
         pushLoading,
+        userPrefs,
+        email,
+        isTelegramConnected,
+        telegramChatId,
         markAsRead,
         markAllAsRead,
         enablePushNotifications,
+        updateChannelPreferences,
+        generateTelegramCode,
+        disconnectTelegram,
         sendTestAlert,
         refreshNotifications: fetchNotifications,
+        refreshPreferences: fetchPreferences,
       }}
     >
       {children}

@@ -41,6 +41,28 @@ export class User extends BaseEntity {
   })
   role: UserRole;
 
+  @Column({ type: 'varchar', length: 150, nullable: true, comment: 'User email address for notifications' })
+  email?: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true, comment: 'Telegram Chat ID for bot alerts' })
+  telegramChatId?: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true, comment: 'Unique 6-digit code to link Telegram bot account' })
+  telegramLinkCode?: string;
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    default: { inApp: true, push: true, email: true, telegram: true },
+    comment: 'Multi-channel notification preferences',
+  })
+  notificationPreferences: {
+    inApp: boolean;
+    push: boolean;
+    email: boolean;
+    telegram: boolean;
+  };
+
   // Many Users belong to one Organization
   @ManyToOne(() => Organization, (organization) => organization.users, {
     onDelete: 'CASCADE',

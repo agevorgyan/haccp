@@ -28,7 +28,7 @@ import {
   MOCK_BRANCH_PERFORMANCE,
 } from '../../data/managerMockData';
 import { authService } from '../../services/authService';
-import { PushNotificationSettingsCard } from '../../components/common/PushNotificationSettingsCard';
+import { MultiChannelNotificationSettingsCard } from '../../components/common/MultiChannelNotificationSettingsCard';
 import type { CriticalViolation } from '../../data/managerMockData';
 
 /**
@@ -105,8 +105,8 @@ export const ManagerDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Push Notifications & Real-Time Alert Settings Card */}
-      <PushNotificationSettingsCard />
+      {/* Multi-Channel Push, Email & Telegram Alert Settings Card */}
+      <MultiChannelNotificationSettingsCard />
 
       {/* Summary KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

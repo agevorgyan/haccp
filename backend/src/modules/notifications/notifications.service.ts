@@ -5,7 +5,12 @@ import { ConfigService } from '@nestjs/config';
 import * as webpush from 'web-push';
 import { Notification, NotificationType } from './entities/notification.entity';
 import { PushSubscription } from './entities/push-subscription.entity';
+import { User } from '../users/entities/user.entity';
 import { NotificationsGateway } from './notifications.gateway';
+import { EmailService } from './email.service';
+import { TelegramService } from './telegram.service';
+
+export type NotificationChannel = 'APP' | 'PUSH' | 'EMAIL' | 'TELEGRAM';
 
 // Standard VAPID fallback pair for dev environments
 const DEFAULT_VAPID_PUBLIC_KEY =
@@ -23,7 +28,11 @@ export class NotificationsService {
     private readonly notificationRepository: Repository<Notification>,
     @InjectRepository(PushSubscription)
     private readonly pushSubscriptionRepository: Repository<PushSubscription>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly notificationsGateway: NotificationsGateway,
+    private readonly emailService: EmailService,
+    private readonly telegramService: TelegramService,
     private readonly configService: ConfigService,
   ) {
     this.vapidPublicKey = this.configService.get<string>(
@@ -52,18 +61,23 @@ export class NotificationsService {
   }
 
   /**
-   * Main sendAlert method:
-   * a) Save notification in database
-   * b) Emit real-time event via Socket.io if user is online
-   * c) Send Web Push notification to saved subscriptions for that user
+   * Unified Multi-Channel sendAlert:
+   * Concurrently dispatches messages across requested and enabled channels:
+   * - APP (In-App DB & WebSocket)
+   * - PUSH (Browser PushManager)
+   * - EMAIL (HTML SMTP Email)
+   * - TELEGRAM (Telegram Bot Markdown Alert)
    */
   async sendAlert(
     userId: string,
     title: string,
     message: string,
     type: NotificationType = NotificationType.ALERT,
+    requestedChannels?: NotificationChannel[],
   ): Promise<Notification> {
-    // a) Save in database
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    // Always save In-App notification record
     const notification = this.notificationRepository.create({
       userId,
       title,
@@ -73,18 +87,56 @@ export class NotificationsService {
     });
     const saved = await this.notificationRepository.save(notification);
 
-    // b) Emit real-time WebSocket event
-    this.notificationsGateway.sendRealTimeNotification(userId, saved);
+    const activeChannels = requestedChannels && requestedChannels.length > 0
+      ? requestedChannels
+      : ['APP', 'PUSH', 'EMAIL', 'TELEGRAM'];
 
-    // c) Send Web Push notification
-    this.dispatchWebPushNotification(userId, {
-      id: saved.id,
-      title: saved.title,
-      message: saved.message,
-      type: saved.type,
-      createdAt: saved.createdAt,
-    });
+    const prefs = user?.notificationPreferences || {
+      inApp: true,
+      push: true,
+      email: true,
+      telegram: true,
+    };
 
+    const dispatchPromises: Promise<any>[] = [];
+
+    // 1. Channel: APP (WebSocket Live Stream)
+    if (activeChannels.includes('APP') && prefs.inApp) {
+      this.notificationsGateway.sendRealTimeNotification(userId, saved);
+    }
+
+    // 2. Channel: PUSH (Browser OS Push)
+    if (activeChannels.includes('PUSH') && prefs.push) {
+      dispatchPromises.push(
+        this.dispatchWebPushNotification(userId, {
+          id: saved.id,
+          title: saved.title,
+          message: saved.message,
+          type: saved.type,
+          createdAt: saved.createdAt,
+        }),
+      );
+    }
+
+    // 3. Channel: EMAIL (HTML Email Alert)
+    if (activeChannels.includes('EMAIL') && prefs.email && user?.email) {
+      dispatchPromises.push(
+        this.emailService.sendEmailAlert(user.email, title, 'alert', {
+          title,
+          message,
+          type,
+        }),
+      );
+    }
+
+    // 4. Channel: TELEGRAM (Telegram Bot Alert)
+    if (activeChannels.includes('TELEGRAM') && prefs.telegram && user?.telegramChatId) {
+      dispatchPromises.push(
+        this.telegramService.sendTelegramAlert(user.telegramChatId, title, message),
+      );
+    }
+
+    await Promise.allSettled(dispatchPromises);
     return saved;
   }
 
@@ -107,7 +159,6 @@ export class NotificationsService {
         } catch (err: any) {
           this.logger.warn(`Failed to deliver Web Push to subscription: ${err.message}`);
           if (err.statusCode === 404 || err.statusCode === 410) {
-            // Subscription expired or invalid; remove from DB
             await this.pushSubscriptionRepository.remove(sub);
           }
         }
@@ -169,5 +220,61 @@ export class NotificationsService {
       subscriptionData,
     });
     return this.pushSubscriptionRepository.save(newSub);
+  }
+
+  async getUserPreferences(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+
+    return {
+      email: user.email || '',
+      isTelegramConnected: !!user.telegramChatId,
+      telegramChatId: user.telegramChatId || null,
+      preferences: user.notificationPreferences || {
+        inApp: true,
+        push: true,
+        email: true,
+        telegram: true,
+      },
+    };
+  }
+
+  async updateUserPreferences(
+    userId: string,
+    body: {
+      email?: string;
+      preferences?: { inApp: boolean; push: boolean; email: boolean; telegram: boolean };
+    },
+  ) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found.`);
+    }
+
+    if (body.email !== undefined) {
+      user.email = body.email;
+    }
+
+    if (body.preferences) {
+      user.notificationPreferences = {
+        ...user.notificationPreferences,
+        ...body.preferences,
+      };
+    }
+
+    await this.userRepository.save(user);
+
+    return this.getUserPreferences(userId);
+  }
+
+  async generateTelegramLinkCode(userId: string) {
+    return this.telegramService.generateLinkCode(userId);
+  }
+
+  async disconnectTelegram(userId: string) {
+    await this.telegramService.unlinkTelegram(userId);
+    return { success: true };
   }
 }

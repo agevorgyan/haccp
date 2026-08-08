@@ -10,6 +10,18 @@ export interface AppNotification {
   createdAt: string;
 }
 
+export interface UserNotificationPreferences {
+  email: string;
+  isTelegramConnected: boolean;
+  telegramChatId: string | null;
+  preferences: {
+    inApp: boolean;
+    push: boolean;
+    email: boolean;
+    telegram: boolean;
+  };
+}
+
 export const notificationService = {
   async getNotifications(): Promise<AppNotification[]> {
     const response = await api.get<AppNotification[]>('/notifications');
@@ -36,7 +48,35 @@ export const notificationService = {
     return response.data;
   },
 
-  async sendTestAlert(data?: { title?: string; message?: string; type?: string }): Promise<AppNotification> {
+  async getPreferences(): Promise<UserNotificationPreferences> {
+    const response = await api.get<UserNotificationPreferences>('/notifications/preferences');
+    return response.data;
+  },
+
+  async updatePreferences(data: {
+    email?: string;
+    preferences?: { inApp: boolean; push: boolean; email: boolean; telegram: boolean };
+  }): Promise<UserNotificationPreferences> {
+    const response = await api.patch<UserNotificationPreferences>('/notifications/preferences', data);
+    return response.data;
+  },
+
+  async generateTelegramCode(): Promise<{ code: string; botUsername: string }> {
+    const response = await api.post<{ code: string; botUsername: string }>('/notifications/telegram/generate-link');
+    return response.data;
+  },
+
+  async disconnectTelegram(): Promise<{ success: boolean }> {
+    const response = await api.delete<{ success: boolean }>('/notifications/telegram/disconnect');
+    return response.data;
+  },
+
+  async sendTestAlert(data?: {
+    title?: string;
+    message?: string;
+    type?: string;
+    channels?: ('APP' | 'PUSH' | 'EMAIL' | 'TELEGRAM')[];
+  }): Promise<AppNotification> {
     const response = await api.post<AppNotification>('/notifications/test-alert', data || {});
     return response.data;
   },
