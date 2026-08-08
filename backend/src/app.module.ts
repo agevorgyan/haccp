@@ -6,6 +6,8 @@ import { UsersModule } from './modules/users/users.module';
 import { LocalizationModule } from './modules/localization/localization.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { HaccpPlansModule } from './modules/haccp-plans/haccp-plans.module';
+import { HazardsModule } from './modules/hazards/hazards.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -55,6 +57,8 @@ import { AuditModule } from './modules/audit/audit.module';
     LocalizationModule,
     NotificationsModule,
     AuditModule,
+    HaccpPlansModule,
+    HazardsModule,
   ],
   controllers: [],
   providers: [],
