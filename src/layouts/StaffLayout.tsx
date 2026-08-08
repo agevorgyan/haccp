@@ -7,9 +7,11 @@ import {
   AlertTriangle, 
   UserCheck, 
   ChevronRight,
-  Plus
+  Plus,
+  LogOut
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
+import { authService } from '../services/authService';
 
 interface NavItem {
   path: string;
@@ -71,10 +73,24 @@ export const StaffLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick Shift Counter */}
-        <div className="hidden sm:flex flex-col items-end text-xs">
-          <span className="text-slate-400">Shift Compliance</span>
-          <span className="text-emerald-400 font-bold text-sm">94%</span>
+        {/* Header Right Tools / Logout */}
+        <div className="flex items-center gap-2">
+          <div className="hidden sm:flex flex-col items-end text-xs mr-2">
+            <span className="text-slate-400">Shift Compliance</span>
+            <span className="text-emerald-400 font-bold text-sm">94%</span>
+          </div>
+
+          <button
+            onClick={() => {
+              authService.logout();
+              window.location.href = '/login';
+            }}
+            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+            title="Sign Out"
+            aria-label="Sign Out"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </header>
 

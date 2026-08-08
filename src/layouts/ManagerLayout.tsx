@@ -17,6 +17,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
+import { authService } from '../services/authService';
 
 interface NavItem {
   path: string;
@@ -155,7 +156,11 @@ export const ManagerLayout: React.FC = () => {
               </div>
             </div>
             <button
-              className="text-slate-400 hover:text-rose-400 p-1 transition-colors"
+              onClick={() => {
+                authService.logout();
+                window.location.href = '/login';
+              }}
+              className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-900 transition-colors cursor-pointer"
               title="Log Out"
               aria-label="Log Out"
             >
