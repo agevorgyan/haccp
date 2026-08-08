@@ -19,6 +19,7 @@ export class AuthService {
   async validateUser(phone: string, pass: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { phone },
+      relations: ['organization'],
       select: ['id', 'phone', 'passwordHash', 'role', 'firstName', 'lastName']
     });
     if (user && (await bcrypt.compare(pass, user.passwordHash))) {
@@ -29,14 +30,17 @@ export class AuthService {
 
   async login(user: User) {
     const payload = { sub: user.id, phone: user.phone, role: user.role };
+    const token = this.jwtService.sign(payload);
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken: token,
+      access_token: token,
       user: {
         id: user.id,
         phone: user.phone,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        organizationId: user.organization?.id,
       },
     };
   }

@@ -14,7 +14,8 @@
     "start:prod": "node dist/main",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm migration:generate -- -d src/config/typeorm.config.ts",
-    "migration:run": "npm run typeorm migration:run -- -d src/config/typeorm.config.ts"
+    "migration:run": "npm run typeorm migration:run -- -d src/config/typeorm.config.ts",
+    "seed": "npx ts-node src/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.0",
