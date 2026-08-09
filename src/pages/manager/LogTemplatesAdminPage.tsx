@@ -11,6 +11,7 @@ import type {
 } from '../../services/journalsApi';
 import { haccpApi } from '../../services/haccpApi';
 import type { Ccp } from '../../services/haccpApi';
+import { PageHeader } from '../../components/common/PageHeader';
 import {
   Plus,
   FileSpreadsheet,
@@ -26,14 +27,18 @@ import {
   ToggleLeft,
   CheckSquare,
   PenTool,
+  Edit2,
+  ShieldCheck,
 } from 'lucide-react';
 
 export const LogTemplatesAdminPage: FC = () => {
   const [templates, setTemplates] = useState<LogTemplate[]>([]);
   const [ccps, setCcps] = useState<Ccp[]>([]);
-
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Pill Filter State
+  const [activeFilter, setActiveFilter] = useState<'ALL' | 'ACTIVE' | 'DRAFT' | 'CCP_LINKED'>('ALL');
 
   // Modals & Drawer
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,8 +64,8 @@ export const LogTemplatesAdminPage: FC = () => {
     {
       id: 'photo_1',
       type: FormFieldType.PHOTO,
-      label: 'Cleanliness Photo Evidence',
-      required: false,
+      label: 'Sanitation Execution Evidence Photo',
+      required: true,
     },
   ]);
 
@@ -89,34 +94,24 @@ export const LogTemplatesAdminPage: FC = () => {
     const newField: FormFieldSchema = {
       id: `field_${Date.now()}`,
       type: FormFieldType.TEXT,
-      label: 'New Form Field',
+      label: 'New Checkpoint Parameter',
       required: false,
     };
-    setFields([...fields, newField]);
+    setFields((prev) => [...prev, newField]);
   };
 
-  const handleUpdateField = (index: number, updated: Partial<FormFieldSchema>) => {
-    const nextFields = [...fields];
-    nextFields[index] = { ...nextFields[index], ...updated };
-    setFields(nextFields);
+  const handleUpdateField = (id: string, updated: Partial<FormFieldSchema>) => {
+    setFields((prev) => prev.map((f) => (f.id === id ? { ...f, ...updated } : f)));
   };
 
-  const handleRemoveField = (index: number) => {
-    setFields(fields.filter((_, i) => i !== index));
+  const handleRemoveField = (id: string) => {
+    setFields((prev) => prev.filter((f) => f.id !== id));
   };
 
   const handleSubmitTemplate = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      if (selectedTemplate && selectedTemplate.status === LogTemplateStatus.ACTIVE) {
-        // Active template branching: updates create a new version record
-        await journalsApi.updateLogTemplate(selectedTemplate.id, {
-          name: templateForm.name,
-          description: templateForm.description,
-          ccpId: templateForm.ccpId || undefined,
-          fields,
-        });
-      } else if (selectedTemplate) {
+      if (selectedTemplate) {
         await journalsApi.updateLogTemplate(selectedTemplate.id, {
           name: templateForm.name,
           description: templateForm.description,
@@ -155,88 +150,159 @@ export const LogTemplatesAdminPage: FC = () => {
   const getFieldTypeIcon = (type: FormFieldType) => {
     switch (type) {
       case FormFieldType.TEMPERATURE:
-        return <Thermometer className="w-4 h-4 text-cyan-400" />;
+        return <Thermometer className="w-3.5 h-3.5 text-cyan-600" />;
       case FormFieldType.PHOTO:
-        return <Camera className="w-4 h-4 text-emerald-400" />;
+        return <Camera className="w-3.5 h-3.5 text-emerald-600" />;
       case FormFieldType.TEXT:
-        return <Type className="w-4 h-4 text-amber-400" />;
+        return <Type className="w-3.5 h-3.5 text-amber-600" />;
       case FormFieldType.NUMBER:
-        return <Hash className="w-4 h-4 text-purple-400" />;
+        return <Hash className="w-3.5 h-3.5 text-purple-600" />;
       case FormFieldType.BOOLEAN:
-        return <ToggleLeft className="w-4 h-4 text-blue-400" />;
+        return <ToggleLeft className="w-3.5 h-3.5 text-blue-600" />;
       case FormFieldType.SELECT:
-        return <CheckSquare className="w-4 h-4 text-teal-400" />;
+        return <CheckSquare className="w-3.5 h-3.5 text-teal-600" />;
       case FormFieldType.SIGNATURE:
-        return <PenTool className="w-4 h-4 text-pink-400" />;
+        return <PenTool className="w-3.5 h-3.5 text-pink-600" />;
       default:
-        return <Layers className="w-4 h-4 text-slate-400" />;
+        return <Layers className="w-3.5 h-3.5 text-slate-500" />;
     }
   };
 
+  const filteredTemplates = templates.filter((tpl) => {
+    if (activeFilter === 'ACTIVE') return tpl.status === LogTemplateStatus.ACTIVE;
+    if (activeFilter === 'DRAFT') return tpl.status === LogTemplateStatus.DRAFT;
+    if (activeFilter === 'CCP_LINKED') return Boolean(tpl.ccpId);
+    return true;
+  });
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950 p-5 rounded-2xl border border-slate-800">
-        <div>
-          <div className="flex items-center gap-2">
-            <FileSpreadsheet className="w-6 h-6 text-emerald-400" />
-            <h1 className="text-xl font-bold text-white tracking-tight">Dynamic Log Templates Engine</h1>
-          </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Build custom digital journal templates, map schema fields to CCP limits, and manage versioning.
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            setSelectedTemplate(null);
-            setTemplateForm({ name: '', description: '', ccpId: '', status: LogTemplateStatus.ACTIVE });
-            setIsModalOpen(true);
-          }}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-600/20"
-        >
-          <Plus className="w-4 h-4" />
-          Create Log Template
-        </button>
-      </div>
+    <div className="space-y-6">
+      {/* Reusable PageHeader Component */}
+      <PageHeader
+        title="Dynamic Log Templates Engine"
+        subtitle="Build custom digital journal templates, map schema fields to CCP limits, and manage versioning."
+        icon={FileSpreadsheet}
+        badge="SCHEMA BUILDER"
+        actions={
+          <button
+            onClick={() => {
+              setSelectedTemplate(null);
+              setTemplateForm({ name: '', description: '', ccpId: '', status: LogTemplateStatus.ACTIVE });
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Log Template</span>
+          </button>
+        }
+      />
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-xs text-red-400 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 shrink-0" />
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-xs text-rose-700 flex items-center gap-3 shadow-xs">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Templates Grid */}
+      {/* Pill Filter Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {[
+          { key: 'ALL', label: `All Templates (${templates.length})` },
+          { key: 'ACTIVE', label: `Active (${templates.filter((t) => t.status === LogTemplateStatus.ACTIVE).length})` },
+          { key: 'DRAFT', label: `Drafts (${templates.filter((t) => t.status === LogTemplateStatus.DRAFT).length})` },
+          { key: 'CCP_LINKED', label: `CCP Linked (${templates.filter((t) => Boolean(t.ccpId)).length})` },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveFilter(tab.key as any)}
+            className={`px-4 py-2 rounded-xl text-xs transition cursor-pointer whitespace-nowrap ${
+              activeFilter === tab.key
+                ? 'bg-blue-600 text-white font-bold shadow-xs shadow-blue-600/20'
+                : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 font-semibold'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Responsive 4-Column Templates Grid */}
       {loading ? (
-        <div className="text-xs text-slate-500 p-8 text-center">Loading log templates...</div>
-      ) : templates.length === 0 ? (
-        <div className="bg-slate-950 p-12 border border-dashed border-slate-800 rounded-2xl text-center text-xs text-slate-500">
-          No log templates defined. Click "Create Log Template" to build a dynamic form for staff entries.
+        <div className="text-xs font-medium text-slate-500 p-12 text-center bg-white rounded-2xl border border-slate-200 shadow-xs">
+          Loading log templates...
+        </div>
+      ) : filteredTemplates.length === 0 ? (
+        <div className="bg-white p-12 border border-dashed border-slate-300 rounded-2xl text-center text-xs text-slate-500 shadow-xs">
+          No log templates match the selected filter. Click "Create Log Template" to build a new dynamic form.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {templates.map((tpl) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {filteredTemplates.map((tpl) => (
             <div
               key={tpl.id}
-              className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4 hover:border-slate-700 transition"
+              className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-blue-300 transition-all flex flex-col justify-between group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-base font-bold text-white">{tpl.name}</h3>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    v{tpl.version}
-                  </span>
+              <div>
+                {/* Top Section */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center font-bold text-lg shadow-xs">
+                    📋
+                  </div>
                   <span
-                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
                       tpl.status === LogTemplateStatus.ACTIVE
-                        ? 'bg-emerald-500/20 text-emerald-400'
-                        : 'bg-slate-800 text-slate-400'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-slate-100 text-slate-600 border-slate-200'
                     }`}
                   >
                     {tpl.status}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+
+                {/* Middle Section */}
+                <h3 className="text-base font-bold text-slate-900 leading-snug line-clamp-1 group-hover:text-blue-600 transition-colors">
+                  {tpl.name}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 line-clamp-2 font-medium">
+                  {tpl.description || 'No description provided.'}
+                </p>
+
+                {/* Schema Fields Badge List */}
+                <div className="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1.5">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span>Fields ({tpl.fields?.length || 0})</span>
+                    {tpl.ccpId && (
+                      <span className="text-blue-600 font-extrabold flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3" /> CCP Linked
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {tpl.fields?.slice(0, 3).map((f) => (
+                      <span
+                        key={f.id}
+                        className="bg-white px-2 py-0.5 rounded-md border border-slate-200 text-[11px] font-medium text-slate-700 flex items-center gap-1"
+                      >
+                        {getFieldTypeIcon(f.type)}
+                        <span className="truncate max-w-[80px]">{f.label}</span>
+                      </span>
+                    ))}
+                    {(tpl.fields?.length || 0) > 3 && (
+                      <span className="text-[10px] text-slate-400 font-bold">
+                        +{(tpl.fields?.length || 0) - 3} more
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Footer Section */}
+              <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                  <span>Version v{tpl.version}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => {
                       setSelectedTemplate(tpl);
@@ -249,37 +315,18 @@ export const LogTemplatesAdminPage: FC = () => {
                       setFields(tpl.fields || []);
                       setIsModalOpen(true);
                     }}
-                    className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 p-1"
+                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200 transition-colors cursor-pointer"
+                    title="Edit Template"
                   >
-                    Edit
+                    <Edit2 className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => handleDeleteTemplate(tpl.id)}
-                    className="text-slate-500 hover:text-red-400 p-1"
+                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 transition-colors cursor-pointer"
+                    title="Delete Template"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                </div>
-              </div>
-
-              <p className="text-xs text-slate-400">{tpl.description || 'No description provided.'}</p>
-
-              {/* Form Schema Field List */}
-              <div className="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-1">
-                  Dynamic Form Schema ({tpl.fields?.length || 0} fields)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {tpl.fields?.map((f) => (
-                    <div
-                      key={f.id}
-                      className="bg-slate-950 p-2 rounded-lg border border-slate-800 flex items-center gap-2 text-xs text-slate-300"
-                    >
-                      {getFieldTypeIcon(f.type)}
-                      <span className="truncate">{f.label}</span>
-                      {f.required && <span className="text-red-400 text-[10px] font-bold">*</span>}
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
@@ -289,14 +336,14 @@ export const LogTemplatesAdminPage: FC = () => {
 
       {/* CREATE/EDIT TEMPLATE MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-bold text-slate-900">
                 {selectedTemplate ? `Edit Log Template (v${selectedTemplate.version})` : 'Create Log Template'}
               </h3>
               {selectedTemplate && selectedTemplate.status === LogTemplateStatus.ACTIVE && (
-                <span className="text-xs font-semibold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-blue-500/20">
+                <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-blue-200">
                   <GitBranch className="w-3.5 h-3.5" /> Branching Active Template (v{selectedTemplate.version + 1})
                 </span>
               )}
@@ -305,27 +352,27 @@ export const LogTemplatesAdminPage: FC = () => {
             <form onSubmit={handleSubmitTemplate} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold text-slate-300 block mb-1">Template Name</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Template Name</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Daily Cold Storage Temperature Log"
                     value={templateForm.name}
                     onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
+                    placeholder="e.g. Daily Walk-In Fridge Temp Log"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-slate-300 block mb-1">Associated CCP (Optional)</label>
+                  <label className="font-semibold text-slate-700 block mb-1">Link to CCP (Optional)</label>
                   <select
                     value={templateForm.ccpId}
                     onChange={(e) => setTemplateForm({ ...templateForm, ccpId: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value="">None (General Operational Log)</option>
-                    {ccps.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.code} - {c.name}
+                    <option value="">No CCP Link</option>
+                    {ccps.map((ccp) => (
+                      <option key={ccp.id} value={ccp.id}>
+                        {ccp.name} ({ccp.code})
                       </option>
                     ))}
                   </select>
@@ -333,103 +380,90 @@ export const LogTemplatesAdminPage: FC = () => {
               </div>
 
               <div>
-                <label className="font-semibold text-slate-300 block mb-1">Description</label>
+                <label className="font-semibold text-slate-700 block mb-1">Description</label>
                 <input
                   type="text"
-                  placeholder="Instructions for kitchen staff..."
                   value={templateForm.description}
                   onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white"
+                  placeholder="Standard operating procedure instructions for staff"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
-              {/* DYNAMIC FORM BUILDER SCHEMA SECTION */}
-              <div className="space-y-3 border-t border-slate-800 pt-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-white uppercase text-[11px] tracking-wider">
-                    Dynamic Form Fields Builder ({fields.length})
-                  </h4>
+              {/* Dynamic Fields Schema Builder */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span className="font-bold text-slate-900 text-xs">Dynamic Form Schema Fields</span>
                   <button
                     type="button"
                     onClick={handleAddField}
-                    className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold px-3 py-1.5 rounded-xl transition"
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-bold"
                   >
                     <PlusCircle className="w-4 h-4" /> Add Field
                   </button>
                 </div>
 
-                <div className="space-y-3">
-                  {fields.map((f, idx) => (
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  {fields.map((f) => (
                     <div
-                      key={f.id || idx}
-                      className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2"
+                      key={f.id}
+                      className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2"
                     >
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <div>
-                          <label className="text-[10px] text-slate-500 font-semibold uppercase block mb-0.5">Field Type</label>
-                          <select
-                            value={f.type}
-                            onChange={(e) => handleUpdateField(idx, { type: e.target.value as FormFieldType })}
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-white"
-                          >
-                            <option value={FormFieldType.TEMPERATURE}>TEMPERATURE</option>
-                            <option value={FormFieldType.PHOTO}>PHOTO</option>
-                            <option value={FormFieldType.TEXT}>TEXT</option>
-                            <option value={FormFieldType.NUMBER}>NUMBER</option>
-                            <option value={FormFieldType.BOOLEAN}>BOOLEAN</option>
-                            <option value={FormFieldType.SELECT}>SELECT</option>
-                            <option value={FormFieldType.SIGNATURE}>SIGNATURE</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="text-[10px] text-slate-500 font-semibold uppercase block mb-0.5">Field Label</label>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={f.type}
+                          onChange={(e) =>
+                            handleUpdateField(f.id, { type: e.target.value as FormFieldType })
+                          }
+                          className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-900"
+                        >
+                          <option value={FormFieldType.TEMPERATURE}>Temperature Probe (°C)</option>
+                          <option value={FormFieldType.PHOTO}>Photo Evidence</option>
+                          <option value={FormFieldType.TEXT}>Text Note</option>
+                          <option value={FormFieldType.NUMBER}>Numeric Value</option>
+                          <option value={FormFieldType.BOOLEAN}>Pass/Fail Switch</option>
+                        </select>
+                        <input
+                          type="text"
+                          value={f.label}
+                          onChange={(e) => handleUpdateField(f.id, { label: e.target.value })}
+                          placeholder="Field Label"
+                          className="flex-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-900"
+                        />
+                        <label className="flex items-center gap-1 text-[11px] text-slate-600 font-medium">
                           <input
-                            type="text"
-                            value={f.label}
-                            onChange={(e) => handleUpdateField(idx, { label: e.target.value })}
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-white"
+                            type="checkbox"
+                            checked={f.required}
+                            onChange={(e) => handleUpdateField(f.id, { required: e.target.checked })}
                           />
-                        </div>
-
-                        <div className="flex items-center justify-between gap-2 pt-3">
-                          <label className="flex items-center gap-1.5 text-slate-300 font-medium cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={f.required || false}
-                              onChange={(e) => handleUpdateField(idx, { required: e.target.checked })}
-                              className="rounded border-slate-800 text-emerald-600 focus:ring-emerald-500"
-                            />
-                            Required
-                          </label>
-
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveField(idx)}
-                            className="text-slate-500 hover:text-red-400 p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                          Req
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveField(f.id)}
+                          className="text-slate-400 hover:text-rose-600 p-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl font-semibold text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl font-semibold bg-emerald-600 text-white hover:bg-emerald-500"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xs transition"
                 >
-                  Save Log Template
+                  {selectedTemplate ? 'Save Version & Update' : 'Publish Template'}
                 </button>
               </div>
             </form>

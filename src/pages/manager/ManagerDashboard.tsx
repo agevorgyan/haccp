@@ -111,87 +111,87 @@ export const ManagerDashboard: React.FC = () => {
       {/* Summary KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* KPI 1: Overall Compliance Score */}
-        <div className="bg-slate-950/80 p-6 rounded-3xl border border-slate-800/80 shadow-sm hover:border-slate-700 transition-all group">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               {t('manager.metrics.overallCompliance')}
             </span>
-            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
               <Building2 className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-4xl font-extrabold text-white tracking-tight">
+          <div className="my-3 flex items-baseline justify-between">
+            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
               {MOCK_SUMMARY_STATS.totalBranches}
             </span>
-            <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
               100% Operational
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">All locations sending telemetry</p>
+          <p className="text-[11px] text-slate-500 font-medium">All locations sending telemetry</p>
         </div>
 
         {/* KPI 2: Today's Log Completion Rate */}
-        <div className="bg-slate-950/80 p-6 rounded-3xl border border-slate-800/80 shadow-sm hover:border-slate-700 transition-all group">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               Log Completion (Today)
             </span>
-            <div className="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-4xl font-extrabold text-white tracking-tight">
+          <div className="my-3 flex items-baseline justify-between">
+            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
               {MOCK_SUMMARY_STATS.logCompletionRate}%
             </span>
-            <span className="text-xs font-bold text-teal-400 flex items-center gap-1">
+            <span className="text-xs font-bold text-teal-700 flex items-center gap-1">
               <TrendingUp className="w-3.5 h-3.5" /> +{MOCK_SUMMARY_STATS.completionTrendChange}%
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">170 of 176 daily logs recorded</p>
+          <p className="text-[11px] text-slate-500 font-medium">170 of 176 daily logs recorded</p>
         </div>
 
         {/* KPI 3: Open Critical Violations */}
-        <div className="bg-slate-950/80 p-6 rounded-3xl border border-slate-800/80 shadow-sm hover:border-slate-700 transition-all group">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               Open Critical Violations
             </span>
-            <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center">
               <AlertTriangle className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-4xl font-extrabold text-rose-400 tracking-tight">
+          <div className="my-3 flex items-baseline justify-between">
+            <span className="text-3xl font-extrabold text-rose-600 tracking-tight">
               {MOCK_SUMMARY_STATS.openViolations}
             </span>
-            <span className="text-xs font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-500/20">
+            <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
               CAPA Action Needed
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">2 temperature breaches • 1 hygiene</p>
+          <p className="text-[11px] text-slate-500 font-medium">2 temperature breaches • 1 hygiene</p>
         </div>
 
         {/* KPI 4: Audit Readiness Score */}
-        <div className="bg-slate-950/80 p-6 rounded-3xl border border-slate-800/80 shadow-sm hover:border-slate-700 transition-all group">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
               Audit Readiness Score
             </span>
-            <div className="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
               <ShieldCheck className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-4xl font-extrabold text-white tracking-tight">
+          <div className="my-3 flex items-baseline justify-between">
+            <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
               {MOCK_SUMMARY_STATS.auditReadinessScore}%
             </span>
-            <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
               Grade A Compliant
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">Based on FDA Food Code standard</p>
+          <p className="text-[11px] text-slate-500 font-medium">Based on FDA Food Code standard</p>
         </div>
       </div>
 
