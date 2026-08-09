@@ -20,12 +20,16 @@ import {
   Lock,
   Thermometer,
 } from 'lucide-react';
+import { authService } from '../../services/authService';
 
 export const HaccpBuilderPage: React.FC = () => {
   const [plans, setPlans] = useState<HaccpPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<HaccpPlan | null>(null);
   const [hazards, setHazards] = useState<Hazard[]>([]);
   const [ccps, setCcps] = useState<Ccp[]>([]);
+
+  const currentUser = authService.getCurrentUser();
+  const canApprovePlan = currentUser?.role === 'OWNER' || currentUser?.role === 'SUPER_ADMIN';
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -315,13 +319,24 @@ export const HaccpBuilderPage: React.FC = () => {
 
                 <div className="flex items-center gap-2">
                   {selectedPlan.status === HaccpPlanStatus.DRAFT && (
-                    <button
-                      onClick={handleApprovePlan}
-                      className="flex items-center gap-1.5 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 text-xs font-semibold px-3 py-2 rounded-xl transition"
-                    >
-                      <FileCheck className="w-4 h-4" />
-                      Approve Plan
-                    </button>
+                    canApprovePlan ? (
+                      <button
+                        onClick={handleApprovePlan}
+                        className="flex items-center gap-1.5 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 text-xs font-semibold px-3 py-2 rounded-xl transition"
+                      >
+                        <FileCheck className="w-4 h-4" />
+                        Approve Plan
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        title="Official HACCP Plan Approval requires Business Owner or QA Director role"
+                        className="flex items-center gap-1.5 bg-slate-800 text-slate-500 border border-slate-700/80 text-xs font-semibold px-3 py-2 rounded-xl cursor-not-allowed opacity-70"
+                      >
+                        <Lock className="w-4 h-4 text-amber-400" />
+                        Approve Plan (Requires Owner)
+                      </button>
+                    )
                   )}
 
                   {(selectedPlan.status === HaccpPlanStatus.APPROVED ||

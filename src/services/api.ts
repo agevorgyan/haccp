@@ -16,12 +16,17 @@ export const api = axios.create({
   timeout: 10000, // 10 seconds timeout
 });
 
-// Request Interceptor: Attach JWT Bearer Token
+// Request Interceptor: Attach JWT Bearer Token reliably for every request
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+    const token =
+      localStorage.getItem('accessToken') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('haccp_access_token');
+
     if (token && config.headers) {
       config.headers.set('Authorization', `Bearer ${token}`);
+      (config.headers as any)['Authorization'] = `Bearer ${token}`;
     }
     return config;
   },
@@ -73,10 +78,16 @@ api.interceptors.response.use(
       // Clear token and user session on 401 Unauthorized
       localStorage.removeItem('accessToken');
       localStorage.removeItem('token');
+      localStorage.removeItem('haccp_access_token');
       localStorage.removeItem('user');
 
-      console.warn('Session expired or unauthorized request. Session cleared.');
+      console.warn('Session expired or unauthorized request (401). Clearing state and redirecting to login.');
+
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
+
     return Promise.reject(error);
   }
 );
