@@ -21,6 +21,7 @@ import { BatchesModule } from './modules/batches/batches.module';
 import { IoTSensorsModule } from './modules/iot-sensors/iot-sensors.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
+import { AiModule } from './modules/ai/ai.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -84,6 +85,7 @@ import { SuperAdminModule } from './modules/super-admin/super-admin.module';
     IoTSensorsModule,
     AnalyticsModule,
     SuperAdminModule,
+    AiModule,
   ],
   controllers: [],
   providers: [],

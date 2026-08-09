@@ -24,6 +24,7 @@ import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { authService } from './services/authService';
 import { NotificationProvider } from './context/NotificationContext';
+import { SyncProvider } from './context/SyncContext';
 
 /**
  * Root Redirect Handler
@@ -54,61 +55,63 @@ const RootRedirect: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <NotificationProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Authentication Route */}
-          <Route path="/login" element={<LoginPage />} />
+      <SyncProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Authentication Route */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Dynamic Root Route */}
-          <Route path="/" element={<RootRedirect />} />
+            {/* Dynamic Root Route */}
+            <Route path="/" element={<RootRedirect />} />
 
-          {/* Protected Staff Layout Group */}
-          <Route element={<ProtectedRoute allowedRoles={['STAFF', 'MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
-            <Route path="/staff" element={<StaffLayout />}>
-              <Route index element={<Navigate to="/staff/dashboard" replace />} />
-              <Route path="dashboard" element={<StaffDashboard />} />
-              <Route path="journal" element={<StaffDailyJournalPage />} />
-              <Route path="cleaning" element={<CleaningSanitationPage />} />
-              <Route path="temp-check" element={<TempLogPage />} />
-              <Route path="logs" element={<StaffDashboard />} />
-              <Route path="incidents" element={<StaffDashboard />} />
+            {/* Protected Staff Layout Group */}
+            <Route element={<ProtectedRoute allowedRoles={['STAFF', 'MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
+              <Route path="/staff" element={<StaffLayout />}>
+                <Route index element={<Navigate to="/staff/dashboard" replace />} />
+                <Route path="dashboard" element={<StaffDashboard />} />
+                <Route path="journal" element={<StaffDailyJournalPage />} />
+                <Route path="cleaning" element={<CleaningSanitationPage />} />
+                <Route path="temp-check" element={<TempLogPage />} />
+                <Route path="logs" element={<StaffDashboard />} />
+                <Route path="incidents" element={<StaffDashboard />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Protected Manager Layout Group */}
-          <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
-            <Route path="/manager" element={<ManagerLayout />}>
-              <Route index element={<Navigate to="/manager/analytics" replace />} />
-              <Route path="analytics" element={<AnalyticsDashboardPage />} />
-              <Route path="dashboard" element={<ManagerDashboard />} />
-              <Route path="haccp" element={<HaccpBuilderPage />} />
-              <Route path="templates" element={<LogTemplatesAdminPage />} />
-              <Route path="compliance" element={<ComplianceDashboardPage />} />
-              <Route path="cleaning" element={<CleaningSanitationPage />} />
-              <Route path="suppliers" element={<SuppliersReceivingPage />} />
-              <Route path="traceability/batches" element={<BatchesManagementPage />} />
-              <Route path="iot-sensors" element={<IoTMonitoringPage />} />
-              <Route path="reports" element={<ReportsPage />} />
-              <Route path="users" element={<UserManagementPage />} />
-              <Route path="equipment" element={<ManagerDashboard />} />
-              <Route path="locations" element={<ManagerDashboard />} />
-              <Route path="languages" element={<LanguageManagementPage />} />
-              <Route path="settings" element={<ManagerDashboard />} />
+            {/* Protected Manager Layout Group */}
+            <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
+              <Route path="/manager" element={<ManagerLayout />}>
+                <Route index element={<Navigate to="/manager/analytics" replace />} />
+                <Route path="analytics" element={<AnalyticsDashboardPage />} />
+                <Route path="dashboard" element={<ManagerDashboard />} />
+                <Route path="haccp" element={<HaccpBuilderPage />} />
+                <Route path="templates" element={<LogTemplatesAdminPage />} />
+                <Route path="compliance" element={<ComplianceDashboardPage />} />
+                <Route path="cleaning" element={<CleaningSanitationPage />} />
+                <Route path="suppliers" element={<SuppliersReceivingPage />} />
+                <Route path="traceability/batches" element={<BatchesManagementPage />} />
+                <Route path="iot-sensors" element={<IoTMonitoringPage />} />
+                <Route path="reports" element={<ReportsPage />} />
+                <Route path="users" element={<UserManagementPage />} />
+                <Route path="equipment" element={<ManagerDashboard />} />
+                <Route path="locations" element={<ManagerDashboard />} />
+                <Route path="languages" element={<LanguageManagementPage />} />
+                <Route path="settings" element={<ManagerDashboard />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Protected Super Admin Layout Group */}
-          <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
-            <Route path="/super-admin" element={<SuperAdminLayout />}>
-              <Route index element={<Navigate to="/super-admin/tenants" replace />} />
-              <Route path="tenants" element={<SuperAdminDashboardPage />} />
+            {/* Protected Super Admin Layout Group */}
+            <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
+              <Route path="/super-admin" element={<SuperAdminLayout />}>
+                <Route index element={<Navigate to="/super-admin/tenants" replace />} />
+                <Route path="tenants" element={<SuperAdminDashboardPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* 404 Catch-All Route */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </BrowserRouter>
+            {/* 404 Catch-All Route */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </BrowserRouter>
+      </SyncProvider>
     </NotificationProvider>
   );
 };

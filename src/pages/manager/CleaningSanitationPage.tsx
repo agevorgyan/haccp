@@ -19,7 +19,11 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 
+import { offlineSyncService } from '../../services/offlineSyncService';
+import { useSync } from '../../context/SyncContext';
+
 export const CleaningSanitationPage: FC = () => {
+  const { refreshPendingCount } = useSync();
   const [tasks, setTasks] = useState<CleaningTask[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +78,20 @@ export const CleaningSanitationPage: FC = () => {
     if (!completingTask) return;
 
     try {
+      if (!navigator.onLine) {
+        await offlineSyncService.enqueue('CLEANING_TASK_COMPLETE', {
+          taskId: completingTask.id,
+          photoUrl,
+          notes: completionNotes,
+        });
+        await refreshPendingCount();
+        alert('Saved offline! Sanitation task completion will sync automatically when Wi-Fi is restored.');
+        setCompletingTask(null);
+        setPhotoUrl('');
+        setCompletionNotes('');
+        return;
+      }
+
       await operationsApi.completeCleaningTask(completingTask.id, photoUrl, completionNotes);
       setCompletingTask(null);
       setPhotoUrl('');

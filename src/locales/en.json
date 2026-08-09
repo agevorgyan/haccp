@@ -28,6 +28,19 @@
       "staff": "Kitchen Staff"
     }
   },
+  "ai": {
+    "title": "Food Safety Copilot",
+    "sub": "AI Assistant trained on authorized tenant metrics",
+    "inputPlaceholder": "Ask me about compliance, CCPs, or CAPAs...",
+    "thinking": "Analyzing tenant compliance metrics..."
+  },
+  "offline": {
+    "title": "Offline Mode",
+    "pendingSync": "Pending Sync: {{count}}",
+    "syncing": "Syncing...",
+    "savedLocally": "Saved offline! Will sync automatically when reconnected.",
+    "syncComplete": "Sync Complete! Uploaded to server."
+  },
   "auth": {
     "signInTitle": "Sign in to SafeKitchen",
     "signInSub": "Enter your registered phone number and 4-digit PIN password.",

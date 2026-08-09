@@ -26,6 +26,7 @@ import {
 import { OfflineBadge } from '../components/common/OfflineBadge';
 import { NotificationBell } from '../components/common/NotificationBell';
 import { CorrectionRequestsModal } from '../components/manager/CorrectionRequestsModal';
+import { AiCopilotChat } from '../components/common/AiCopilotChat';
 import { authService } from '../services/authService';
 
 interface NavItem {
@@ -65,6 +66,7 @@ export const ManagerLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [selectedVenue, setSelectedVenue] = useState<string>('All Locations (3)');
   const [isCorrectionModalOpen, setIsCorrectionModalOpen] = useState<boolean>(false);
+  const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
 
   const isSettingsActive = SETTINGS_SUB_ITEMS.some((item) => location.pathname === item.path);
 
@@ -96,7 +98,7 @@ export const ManagerLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-900 text-slate-100 antialiased selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen flex bg-slate-900 text-slate-100 antialiased selection:bg-emerald-500 selection:text-white relative">
       <OfflineBadge />
 
       {/* Mobile Sidebar Overlay */}
@@ -260,6 +262,15 @@ export const ManagerLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* AI Copilot Header Trigger */}
+            <button
+              onClick={() => setIsAiModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600/20 to-teal-500/20 hover:from-emerald-600/30 hover:to-teal-500/30 text-emerald-400 text-xs font-bold border border-emerald-500/30 transition-all cursor-pointer shadow-sm"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <span>AI Copilot</span>
+            </button>
+
             {/* Correction Requests Modal Trigger */}
             <button
               onClick={() => setIsCorrectionModalOpen(true)}
@@ -297,9 +308,23 @@ export const ManagerLayout: React.FC = () => {
         </main>
       </div>
 
+      {/* Floating Action Button (FAB) for AI Copilot */}
+      <button
+        onClick={() => setIsAiModalOpen(true)}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 shadow-2xl shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-300/40"
+        title="Open AI Food Safety Copilot"
+      >
+        <Sparkles className="w-6 h-6 stroke-[2.5]" />
+      </button>
+
       <CorrectionRequestsModal
         isOpen={isCorrectionModalOpen}
         onClose={() => setIsCorrectionModalOpen(false)}
+      />
+
+      <AiCopilotChat
+        isOpen={isAiModalOpen}
+        onClose={() => setIsAiModalOpen(false)}
       />
     </div>
   );

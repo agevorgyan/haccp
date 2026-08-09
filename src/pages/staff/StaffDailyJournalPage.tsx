@@ -20,7 +20,11 @@ import {
   Thermometer,
 } from 'lucide-react';
 
+import { offlineSyncService } from '../../services/offlineSyncService';
+import { useSync } from '../../context/SyncContext';
+
 export const StaffDailyJournalPage: FC = () => {
+  const { refreshPendingCount } = useSync();
   const [templates, setTemplates] = useState<LogTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<LogTemplate | null>(null);
   const [entries, setEntries] = useState<LogEntry[]>([]);
@@ -69,11 +73,21 @@ export const StaffDailyJournalPage: FC = () => {
       setError(null);
       setSuccessMsg(null);
 
-      await journalsApi.createLogEntry({
+      const payload = {
         templateId: selectedTemplate.id,
         data: formData,
         status: LogEntryStatus.SUBMITTED,
-      });
+      };
+
+      if (!navigator.onLine) {
+        await offlineSyncService.enqueue('LOG_ENTRY', payload);
+        await refreshPendingCount();
+        setSuccessMsg('Saved offline! Your log entry will sync automatically when Wi-Fi is restored.');
+        setFormData({});
+        return;
+      }
+
+      await journalsApi.createLogEntry(payload);
 
       setSuccessMsg('Journal log entry submitted successfully! Audit log recorded.');
       setFormData({});
