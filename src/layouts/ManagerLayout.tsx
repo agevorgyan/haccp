@@ -19,6 +19,7 @@ import {
   ShieldAlert,
   Sparkles,
   Truck,
+  Boxes,
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
 import { NotificationBell } from '../components/common/NotificationBell';
@@ -39,6 +40,7 @@ const TOP_NAV_ITEMS: NavItem[] = [
   { path: '/manager/compliance', key: 'nav.complianceDashboard', icon: ShieldAlert },
   { path: '/manager/cleaning', key: 'nav.cleaningSanitation', icon: Sparkles },
   { path: '/manager/suppliers', key: 'nav.suppliersReceiving', icon: Truck },
+  { path: '/manager/traceability/batches', key: 'nav.batchesTraceability', icon: Boxes },
   { path: '/manager/reports', key: 'nav.auditReports', icon: FileSpreadsheet, badge: 'PDF' },
   { path: '/manager/equipment', key: 'nav.sensoryEquipment', icon: ThermometerSnowflake },
   { path: '/manager/locations', key: 'nav.multiVenueOverview', icon: Building2 },

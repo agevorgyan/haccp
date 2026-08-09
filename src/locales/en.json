@@ -35,6 +35,7 @@
     "complianceDashboard": "Compliance & CAPA Engine",
     "cleaningSanitation": "Cleaning & Sanitation",
     "suppliersReceiving": "Suppliers & Receiving",
+    "batchesTraceability": "Batches & Lot Traceability",
     "auditReports": "HACCP Audit Reports",
     "sensoryEquipment": "Sensory Equipment",
     "languageManagement": "Language Management",
@@ -88,5 +89,13 @@
     "receivingTitle": "Receiving Inspection Logs",
     "rejectDelivery": "Reject Delivery",
     "rejectionReason": "Rejection Reason"
+  },
+  "traceability": {
+    "title": "Batches & Lot Traceability",
+    "registerBatch": "Register New Batch",
+    "decrementQuantity": "Use / Decrement Inventory",
+    "quarantine": "Quarantine Batch",
+    "recall": "Recall Batch",
+    "exhausted": "Exhausted"
   }
 }

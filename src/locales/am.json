@@ -35,6 +35,7 @@
     "complianceDashboard": "Համապատասխանություն և CAPA",
     "cleaningSanitation": "Մաքրում և Սանիտարիա",
     "suppliersReceiving": "Մատակարարներ և Մուտքագրում",
+    "batchesTraceability": "Խմբաքանակներ և Հետագծելիություն",
     "auditReports": "HACCP Աուդիտի Հաշվետվություններ",
     "sensoryEquipment": "Սենսորային Սարքավորումներ",
     "languageManagement": "Լեզուների Կառավարում",
@@ -88,5 +89,13 @@
     "receivingTitle": "Մուտքագրման Ստուգման Գրանցամատյան",
     "rejectDelivery": "Մերժել Առաքումը",
     "rejectionReason": "Մերժման Պատճառ"
+  },
+  "traceability": {
+    "title": "Խմբաքանակներ և Հետագծելիություն",
+    "registerBatch": "Գրանցել Նոր Խմբաքանակ",
+    "decrementQuantity": "Օգտագործել Պաշարը",
+    "quarantine": "Կարանտինացնել Խմբաքանակը",
+    "recall": "Հետ Կանչել Խմբաքանակը",
+    "exhausted": "Սպառված"
   }
 }

@@ -14,6 +14,7 @@ import { LogTemplatesAdminPage } from './pages/manager/LogTemplatesAdminPage';
 import { ComplianceDashboardPage } from './pages/manager/ComplianceDashboardPage';
 import { CleaningSanitationPage } from './pages/manager/CleaningSanitationPage';
 import { SuppliersReceivingPage } from './pages/manager/SuppliersReceivingPage';
+import { BatchesManagementPage } from './pages/manager/BatchesManagementPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -75,6 +76,7 @@ export const App: React.FC = () => {
               <Route path="compliance" element={<ComplianceDashboardPage />} />
               <Route path="cleaning" element={<CleaningSanitationPage />} />
               <Route path="suppliers" element={<SuppliersReceivingPage />} />
+              <Route path="traceability/batches" element={<BatchesManagementPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="users" element={<UserManagementPage />} />
               <Route path="equipment" element={<ManagerDashboard />} />
