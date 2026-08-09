@@ -26,6 +26,8 @@ import { authService } from './services/authService';
 import { NotificationProvider } from './context/NotificationContext';
 import { SyncProvider } from './context/SyncContext';
 
+import { HealthJournalPage } from './pages/manager/HealthJournalPage';
+
 /**
  * Root Redirect Handler
  */
@@ -85,6 +87,7 @@ export const App: React.FC = () => {
                 <Route path="dashboard" element={<ManagerDashboard />} />
                 <Route path="haccp" element={<HaccpBuilderPage />} />
                 <Route path="templates" element={<LogTemplatesAdminPage />} />
+                <Route path="health-journal" element={<HealthJournalPage />} />
                 <Route path="compliance" element={<ComplianceDashboardPage />} />
                 <Route path="cleaning" element={<CleaningSanitationPage />} />
                 <Route path="suppliers" element={<SuppliersReceivingPage />} />
