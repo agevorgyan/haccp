@@ -59,6 +59,7 @@ const SETTINGS_SUB_ITEMS: NavItem[] = [
 
 /**
  * ManagerLayout Component
+ * Modern Enterprise SaaS layout: Dark Navy Sidebar + Crisp Light Main Content Area.
  */
 export const ManagerLayout: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -69,7 +70,6 @@ export const ManagerLayout: React.FC = () => {
   const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
 
   const isSettingsActive = SETTINGS_SUB_ITEMS.some((item) => location.pathname === item.path);
-
   const [settingsOpen, setSettingsOpen] = useState<boolean>(() => isSettingsActive);
 
   useEffect(() => {
@@ -98,34 +98,39 @@ export const ManagerLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-900 text-slate-100 antialiased selection:bg-emerald-500 selection:text-white relative">
+    <div className="min-h-screen flex bg-slate-50 text-slate-900 antialiased selection:bg-blue-600 selection:text-white relative">
       <OfflineBadge />
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Desktop / Tablet Sidebar */}
+      {/* Desktop / Tablet Sidebar (Dark Navy Background) */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-950 border-r border-slate-800/80 flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
-        {/* Brand Header */}
-        <div className="h-16 px-5 border-b border-slate-800/80 flex items-center justify-between">
+        {/* Brand Header with DEMO ACCESS Pill Badge */}
+        <div className="h-16 px-5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 font-extrabold text-xl shadow-lg shadow-emerald-500/20">
-              <ShieldCheck className="w-5 h-5 text-slate-950 stroke-[2.5]" />
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-blue-600/25">
+              <ShieldCheck className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
             <div>
-              <span className="font-bold tracking-tight text-white text-base leading-none block">
-                SafeKitchen
-              </span>
-              <span className="text-[10px] uppercase font-semibold text-emerald-400 tracking-wider">
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold tracking-tight text-white text-base leading-none block">
+                  SafeKitchen
+                </span>
+                <span className="text-[9px] uppercase font-bold bg-blue-600/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded-full">
+                  DEMO ACCESS
+                </span>
+              </div>
+              <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider block mt-0.5">
                 HACCP Enterprise
               </span>
             </div>
@@ -140,7 +145,7 @@ export const ManagerLayout: React.FC = () => {
         </div>
 
         {/* Venue Context Switcher */}
-        <div className="p-4 border-b border-slate-800/60">
+        <div className="p-4 border-b border-slate-800/80">
           <label className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 mb-1.5 block">
             {t('manager.locationPerformance')}
           </label>
@@ -148,7 +153,7 @@ export const ManagerLayout: React.FC = () => {
             <select
               value={selectedVenue}
               onChange={(e) => setSelectedVenue(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-medium text-slate-200 appearance-none focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 cursor-pointer pr-8"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer pr-8"
             >
               <option value="All Locations (3)">All Locations (3)</option>
               <option value="Downtown Bistro">Downtown Bistro</option>
@@ -170,18 +175,24 @@ export const ManagerLayout: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                    ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/20'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                   <span>{t(item.key, item.key)}</span>
                 </div>
                 {item.badge && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
+                  <span
+                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                      isActive
+                        ? 'bg-white/20 text-white'
+                        : 'bg-slate-800 text-blue-400 border border-blue-500/20'
+                    }`}
+                  >
                     {item.badge}
                   </span>
                 )}
@@ -193,8 +204,8 @@ export const ManagerLayout: React.FC = () => {
           <div className="pt-2">
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                isSettingsActive ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                isSettingsActive ? 'text-blue-400 font-bold' : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -213,8 +224,10 @@ export const ManagerLayout: React.FC = () => {
                       key={item.path}
                       to={item.path}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                        isActive ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:text-slate-200'
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                        isActive
+                          ? 'bg-blue-600/20 text-blue-400 font-bold border border-blue-500/30'
+                          : 'text-slate-400 hover:text-white'
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5" />
@@ -228,19 +241,19 @@ export const ManagerLayout: React.FC = () => {
         </nav>
 
         {/* User Account Footer */}
-        <div className="p-4 border-t border-slate-800/80 flex items-center justify-between">
+        <div className="p-4 border-t border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-emerald-400">
+            <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
               {initials}
             </div>
             <div className="truncate">
-              <span className="text-xs font-bold text-slate-200 block truncate">{displayName}</span>
+              <span className="text-xs font-bold text-slate-100 block truncate">{displayName}</span>
               <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{roleLabel}</span>
             </div>
           </div>
           <button
             onClick={() => authService.logout()}
-            className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-900 transition-colors"
+            className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
             title={t('common.logout')}
           >
             <LogOut className="w-4 h-4" />
@@ -248,33 +261,37 @@ export const ManagerLayout: React.FC = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Navbar */}
-        <header className="h-16 bg-slate-950/60 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30 backdrop-blur-md">
+      {/* Main Content Area (Light Background) */}
+      <div className="flex-1 flex flex-col min-w-0 bg-slate-50">
+        {/* Crisp Top Navbar */}
+        <header className="h-16 bg-white/90 border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30 backdrop-blur-md shadow-xs">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden text-slate-400 hover:text-white p-2 rounded-lg bg-slate-900 border border-slate-800"
+              className="md:hidden text-slate-600 hover:text-slate-900 p-2 rounded-xl bg-slate-100 border border-slate-200"
             >
               <Menu className="w-5 h-5" />
             </button>
+
+            <span className="text-xs font-semibold text-slate-500 hidden sm:inline-block">
+              Organization Context: <strong className="text-slate-800 font-bold">{selectedVenue}</strong>
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
             {/* AI Copilot Header Trigger */}
             <button
               onClick={() => setIsAiModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600/20 to-teal-500/20 hover:from-emerald-600/30 hover:to-teal-500/30 text-emerald-400 text-xs font-bold border border-emerald-500/30 transition-all cursor-pointer shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold border border-blue-200/80 transition-all cursor-pointer shadow-xs"
             >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
               <span>AI Copilot</span>
             </button>
 
             {/* Correction Requests Modal Trigger */}
             <button
               onClick={() => setIsCorrectionModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold border border-amber-200 transition-colors cursor-pointer"
             >
               <FileDiff className="w-3.5 h-3.5" />
               <span>Correction Requests</span>
@@ -283,9 +300,9 @@ export const ManagerLayout: React.FC = () => {
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold border border-slate-700 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors cursor-pointer"
             >
-              <Globe className="w-3.5 h-3.5 text-emerald-400" />
+              <Globe className="w-3.5 h-3.5 text-blue-600" />
               <span>{i18n.language === 'am' ? 'AM (ՀԱՅ)' : 'EN'}</span>
             </button>
 
@@ -295,7 +312,7 @@ export const ManagerLayout: React.FC = () => {
             {/* Direct Link to Staff Kitchen Mode */}
             <NavLink
               to="/staff/dashboard"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/20 transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-all"
             >
               <span>{t('nav.kitchenMode')}</span>
             </NavLink>
@@ -311,7 +328,7 @@ export const ManagerLayout: React.FC = () => {
       {/* Floating Action Button (FAB) for AI Copilot */}
       <button
         onClick={() => setIsAiModalOpen(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 shadow-2xl shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-300/40"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xl shadow-blue-600/30 hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-blue-400/40"
         title="Open AI Food Safety Copilot"
       >
         <Sparkles className="w-6 h-6 stroke-[2.5]" />
