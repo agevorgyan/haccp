@@ -28,6 +28,7 @@
     }
   },
   "nav": {
+    "executiveAnalytics": "Ղեկավարի Վերլուծություն",
     "executiveDashboard": "Ղեկավարի Վահանակ",
     "haccpBuilder": "HACCP Հիմնական Կառուցիչ",
     "logTemplates": "Դինամիկ Ձևանմուշներ",
@@ -45,6 +46,7 @@
     "complianceSettings": "Կարգավորումներ",
     "kitchenMode": "Անցնել Խոհանոցային Ռեժիմին",
     "managerMode": "Մենեջերի Պորտալ",
+    "superAdminPortal": "Սուպեր Ադմինի Պորտալ",
     "logout": "Դուրս Գալ"
   },
   "notifications": {
@@ -105,5 +107,19 @@
     "ingestReading": "Ուղարկել Տելեմետրիկ Ցուցմունք",
     "battery": "Մարտկոցի Մակարդակ",
     "lastPing": "Վերջին Ակտիվություն"
+  },
+  "analytics": {
+    "title": "Ղեկավարի Վերլուծություն և Վերահսկողություն",
+    "complianceScore": "Համապատասխանության Միավոր",
+    "trend": "14-Օրյա Միտում",
+    "openViolations": "Բաց Խախտումներ",
+    "activeCapas": "Ակտիվ CAPA-ներ"
+  },
+  "superAdmin": {
+    "title": "Բազմա-Օբյեկտ SaaS Պորտալ",
+    "tenantManagement": "Կազմակերպությունների Կառավարում",
+    "maxUsersReached": "Օգտատերերի Սահմանաչափը Լրացված Է",
+    "suspendOrg": "Կասեցնել Կազմակերպությունը",
+    "plans": "SaaS Բաժանորդագրության Պլաններ"
   }
 }

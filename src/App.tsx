@@ -2,10 +2,12 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { StaffLayout } from './layouts/StaffLayout';
 import { ManagerLayout } from './layouts/ManagerLayout';
+import { SuperAdminLayout } from './layouts/SuperAdminLayout';
 import { StaffDashboard } from './pages/staff/StaffDashboard';
 import { TempLogPage } from './pages/staff/TempLogPage';
 import { StaffDailyJournalPage } from './pages/staff/StaffDailyJournalPage';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
+import { AnalyticsDashboardPage } from './pages/manager/AnalyticsDashboardPage';
 import { ReportsPage } from './pages/manager/ReportsPage';
 import { LanguageManagementPage } from './pages/manager/LanguageManagementPage';
 import { UserManagementPage } from './pages/manager/UserManagementPage';
@@ -16,6 +18,7 @@ import { CleaningSanitationPage } from './pages/manager/CleaningSanitationPage';
 import { SuppliersReceivingPage } from './pages/manager/SuppliersReceivingPage';
 import { BatchesManagementPage } from './pages/manager/BatchesManagementPage';
 import { IoTMonitoringPage } from './pages/manager/IoTMonitoringPage';
+import { SuperAdminDashboardPage } from './pages/super-admin/SuperAdminDashboardPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -33,8 +36,13 @@ const RootRedirect: React.FC = () => {
 
   const currentUser = authService.getCurrentUser();
   const role = currentUser?.role?.toUpperCase();
-  if (role === 'MANAGER' || role === 'OWNER' || role === 'SUPER_ADMIN') {
-    return <Navigate to="/manager/dashboard" replace />;
+
+  if (role === 'SUPER_ADMIN') {
+    return <Navigate to="/super-admin/tenants" replace />;
+  }
+
+  if (role === 'MANAGER' || role === 'OWNER') {
+    return <Navigate to="/manager/analytics" replace />;
   }
 
   return <Navigate to="/staff/dashboard" replace />;
@@ -70,7 +78,8 @@ export const App: React.FC = () => {
           {/* Protected Manager Layout Group */}
           <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
             <Route path="/manager" element={<ManagerLayout />}>
-              <Route index element={<Navigate to="/manager/dashboard" replace />} />
+              <Route index element={<Navigate to="/manager/analytics" replace />} />
+              <Route path="analytics" element={<AnalyticsDashboardPage />} />
               <Route path="dashboard" element={<ManagerDashboard />} />
               <Route path="haccp" element={<HaccpBuilderPage />} />
               <Route path="templates" element={<LogTemplatesAdminPage />} />
@@ -85,6 +94,14 @@ export const App: React.FC = () => {
               <Route path="locations" element={<ManagerDashboard />} />
               <Route path="languages" element={<LanguageManagementPage />} />
               <Route path="settings" element={<ManagerDashboard />} />
+            </Route>
+          </Route>
+
+          {/* Protected Super Admin Layout Group */}
+          <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
+            <Route path="/super-admin" element={<SuperAdminLayout />}>
+              <Route index element={<Navigate to="/super-admin/tenants" replace />} />
+              <Route path="tenants" element={<SuperAdminDashboardPage />} />
             </Route>
           </Route>
 

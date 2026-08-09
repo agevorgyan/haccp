@@ -28,6 +28,7 @@
     }
   },
   "nav": {
+    "executiveAnalytics": "Executive Analytics",
     "executiveDashboard": "Executive Dashboard",
     "haccpBuilder": "HACCP Core Builder",
     "logTemplates": "Dynamic Log Templates",
@@ -45,6 +46,7 @@
     "complianceSettings": "Compliance Settings",
     "kitchenMode": "Switch to Kitchen Mode",
     "managerMode": "Manager Portal",
+    "superAdminPortal": "Super Admin Backoffice",
     "logout": "Log Out"
   },
   "notifications": {
@@ -105,5 +107,19 @@
     "ingestReading": "Ingest Telemetry Reading",
     "battery": "Battery Level",
     "lastPing": "Last Ping"
+  },
+  "analytics": {
+    "title": "Executive Analytics & Oversight",
+    "complianceScore": "Compliance Score",
+    "trend": "14-Day Trend",
+    "openViolations": "Open Violations",
+    "activeCapas": "Active CAPAs"
+  },
+  "superAdmin": {
+    "title": "Multi-Tenant SaaS Backoffice",
+    "tenantManagement": "Tenant Management",
+    "maxUsersReached": "Max Users Reached",
+    "suspendOrg": "Suspend Organization",
+    "plans": "SaaS Subscription Tiers"
   }
 }

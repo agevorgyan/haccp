@@ -19,6 +19,8 @@ import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { ReceivingModule } from './modules/receiving/receiving.module';
 import { BatchesModule } from './modules/batches/batches.module';
 import { IoTSensorsModule } from './modules/iot-sensors/iot-sensors.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -39,7 +41,6 @@ import { IoTSensorsModule } from './modules/iot-sensors/iot-sensors.module';
         const env = configService.get<string>('NODE_ENV', 'development');
         const isDev = env === 'development';
         const isProduction = env === 'production';
-        const allowSync = configService.get<boolean>('DB_SYNCHRONIZE', false);
 
         return {
           type: 'postgres',
@@ -81,6 +82,8 @@ import { IoTSensorsModule } from './modules/iot-sensors/iot-sensors.module';
     ReceivingModule,
     BatchesModule,
     IoTSensorsModule,
+    AnalyticsModule,
+    SuperAdminModule,
   ],
   controllers: [],
   providers: [],

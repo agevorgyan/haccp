@@ -1,8 +1,15 @@
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../../../common/entities/base.entity';
 import { Branch } from '../../branches/entities/branch.entity';
 import { User } from '../../users/entities/user.entity';
 import { LogTemplate } from '../../log-templates/entities/log-template.entity';
+import { SubscriptionPlan } from '../../super-admin/entities/subscription-plan.entity';
+
+export enum SubscriptionStatus {
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  TRIAL = 'TRIAL',
+}
 
 /**
  * Organization Entity
@@ -18,6 +25,21 @@ export class Organization extends BaseEntity {
 
   @Column({ type: 'boolean', default: true, comment: 'SaaS subscription active status' })
   isActive: boolean;
+
+  @Column({ type: 'uuid', nullable: true, comment: 'Foreign key reference to SubscriptionPlan' })
+  subscriptionPlanId?: string;
+
+  @ManyToOne(() => SubscriptionPlan, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'subscriptionPlanId' })
+  subscriptionPlan?: SubscriptionPlan;
+
+  @Column({
+    type: 'enum',
+    enum: SubscriptionStatus,
+    default: SubscriptionStatus.ACTIVE,
+    comment: 'Subscription lifecycle status: ACTIVE, SUSPENDED, or TRIAL',
+  })
+  subscriptionStatus: SubscriptionStatus;
 
   // Multi-tenant relations
   @OneToMany(() => Branch, (branch) => branch.organization)

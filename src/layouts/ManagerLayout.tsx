@@ -21,6 +21,7 @@ import {
   Truck,
   Boxes,
   Cpu,
+  BarChart3,
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
 import { NotificationBell } from '../components/common/NotificationBell';
@@ -35,6 +36,7 @@ interface NavItem {
 }
 
 const TOP_NAV_ITEMS: NavItem[] = [
+  { path: '/manager/analytics', key: 'nav.executiveAnalytics', icon: BarChart3, badge: 'HQ' },
   { path: '/manager/dashboard', key: 'nav.executiveDashboard', icon: LayoutDashboard },
   { path: '/manager/haccp', key: 'nav.haccpBuilder', icon: ShieldCheck },
   { path: '/manager/templates', key: 'nav.logTemplates', icon: Layers },
