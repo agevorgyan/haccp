@@ -14,6 +14,7 @@ import { LogEntriesModule } from './modules/log-entries/log-entries.module';
 import { CorrectionRequestsModule } from './modules/correction-requests/correction-requests.module';
 import { ViolationsModule } from './modules/violations/violations.module';
 import { CapasModule } from './modules/capas/capas.module';
+import { CleaningTasksModule } from './modules/cleaning-tasks/cleaning-tasks.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -71,6 +72,7 @@ import { CapasModule } from './modules/capas/capas.module';
     CorrectionRequestsModule,
     ViolationsModule,
     CapasModule,
+    CleaningTasksModule,
   ],
   controllers: [],
   providers: [],
