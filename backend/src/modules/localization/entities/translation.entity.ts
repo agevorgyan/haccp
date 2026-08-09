@@ -15,10 +15,10 @@ export class Translation extends BaseEntity {
   @Column({ type: 'text', comment: 'Localized translated text value' })
   value: string;
 
-  @Column({ type: 'varchar', length: 10, comment: 'Target ISO language code' })
+  @Column({ name: 'languageCode', type: 'varchar', length: 10, comment: 'Target ISO language code' })
   languageCode: string;
 
   @ManyToOne(() => Language, (language) => language.translations, { onDelete: 'CASCADE', nullable: false })
-  @JoinColumn({ name: 'language_code', referencedColumnName: 'code' })
+  @JoinColumn({ name: 'languageCode', referencedColumnName: 'code' })
   language: Language;
 }

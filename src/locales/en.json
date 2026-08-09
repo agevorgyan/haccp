@@ -32,6 +32,9 @@
     "haccpBuilder": "HACCP Core Builder",
     "logTemplates": "Dynamic Log Templates",
     "dailyJournal": "Staff Daily Journal",
+    "complianceDashboard": "Compliance & CAPA Engine",
+    "cleaningSanitation": "Cleaning & Sanitation",
+    "suppliersReceiving": "Suppliers & Receiving",
     "auditReports": "HACCP Audit Reports",
     "sensoryEquipment": "Sensory Equipment",
     "languageManagement": "Language Management",
@@ -68,5 +71,22 @@
     "submitLog": "Submit Journal Record to Compliance Log",
     "submittedRecords": "Submitted Immutable Records",
     "requestCorrection": "Request Historical Correction"
+  },
+  "compliance": {
+    "title": "Compliance & CAPA Engine",
+    "violations": "Automated Violations",
+    "correctiveActions": "Corrective & Preventive Actions (CAPA)",
+    "initiateCapa": "Initiate CAPA",
+    "resolveViolation": "Resolve Violation",
+    "closeCapa": "Close CAPA"
+  },
+  "operations": {
+    "cleaningTitle": "Cleaning & Sanitation Protocols",
+    "completeTask": "Complete Task",
+    "verifyTask": "Verify Task",
+    "suppliersTitle": "Supplier Directory",
+    "receivingTitle": "Receiving Inspection Logs",
+    "rejectDelivery": "Reject Delivery",
+    "rejectionReason": "Rejection Reason"
   }
 }

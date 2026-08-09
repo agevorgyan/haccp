@@ -3,10 +3,15 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
 } from 'class-validator';
 import { CcpStatus } from '../entities/ccp.entity';
 
 export class UpdateCcpDto {
+  @IsOptional()
+  @IsUUID()
+  hazardId?: string;
+
   @IsOptional()
   @IsString()
   code?: string;

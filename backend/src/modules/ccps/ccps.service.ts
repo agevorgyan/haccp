@@ -70,11 +70,19 @@ export class CcpsService {
   /**
    * Retrieve all CCPs for a plan, strictly isolated by tenant organization ID
    */
-  async findAllByPlan(planId: string, tenant: TenantContext): Promise<Ccp[]> {
-    await this.haccpPlansService.findById(planId, tenant);
+  async findAllByPlan(planId: string | undefined, tenant: TenantContext): Promise<Ccp[]> {
+    if (planId && planId !== 'undefined' && planId !== 'null' && planId.trim() !== '') {
+      await this.haccpPlansService.findById(planId, tenant);
+
+      return this.ccpRepository.find({
+        where: { planId, organizationId: tenant.organizationId },
+        relations: ['hazard'],
+        order: { code: 'ASC', createdAt: 'DESC' },
+      });
+    }
 
     return this.ccpRepository.find({
-      where: { planId, organizationId: tenant.organizationId },
+      where: { organizationId: tenant.organizationId },
       relations: ['hazard'],
       order: { code: 'ASC', createdAt: 'DESC' },
     });
@@ -104,78 +112,44 @@ export class CcpsService {
   }
 
   /**
-   * Create a new Critical Control Point (CCP) with critical limits
+   * Create new Critical Control Point with limits validation
    */
-  async create(dto: CreateCcpDto, tenant: TenantContext): Promise<Ccp> {
-    if (!tenant.organizationId && tenant.role !== UserRole.SUPER_ADMIN) {
-      throw new ForbiddenException('Tenant organization reference required to define a CCP.');
-    }
+  async create(createCcpDto: CreateCcpDto, tenant: TenantContext): Promise<Ccp> {
+    await this.validateParentPlanState(createCcpDto.planId, tenant);
+    await this.validateHazardRequirement(createCcpDto.hazardId, createCcpDto.planId, tenant);
 
-    // 1. Validate parent plan editable state
-    const plan = await this.validateParentPlanState(dto.planId, tenant);
-
-    // 2. Validate hazard belongs to plan and requires a CCP
-    const hazard = await this.validateHazardRequirement(dto.hazardId, dto.planId, tenant);
-
-    // 3. Create and persist CCP
     const ccp = this.ccpRepository.create({
-      organizationId: plan.organizationId,
-      planId: plan.id,
-      hazardId: hazard.id,
-      code: dto.code,
-      name: dto.name,
-      description: dto.description,
-      criticalLimitMin: dto.criticalLimitMin,
-      criticalLimitMax: dto.criticalLimitMax,
-      warningLimitMin: dto.warningLimitMin,
-      warningLimitMax: dto.warningLimitMax,
-      unit: dto.unit || '°C',
-      monitoringMethod: dto.monitoringMethod,
-      monitoringFrequency: dto.monitoringFrequency,
-      status: dto.status || CcpStatus.ACTIVE,
+      ...createCcpDto,
+      organizationId: tenant.organizationId,
+      status: CcpStatus.ACTIVE,
     });
 
     return this.ccpRepository.save(ccp);
   }
 
   /**
-   * Update an existing CCP with plan state verification
+   * Update existing CCP
    */
-  async update(
-    id: string,
-    dto: UpdateCcpDto,
-    tenant: TenantContext,
-  ): Promise<Ccp> {
+  async update(id: string, updateCcpDto: UpdateCcpDto, tenant: TenantContext): Promise<Ccp> {
     const ccp = await this.findById(id, tenant);
-
-    // Validate parent plan editable state
     await this.validateParentPlanState(ccp.planId, tenant);
 
-    if (dto.code) ccp.code = dto.code;
-    if (dto.name) ccp.name = dto.name;
-    if (dto.description !== undefined) ccp.description = dto.description;
-    if (dto.criticalLimitMin !== undefined) ccp.criticalLimitMin = dto.criticalLimitMin;
-    if (dto.criticalLimitMax !== undefined) ccp.criticalLimitMax = dto.criticalLimitMax;
-    if (dto.warningLimitMin !== undefined) ccp.warningLimitMin = dto.warningLimitMin;
-    if (dto.warningLimitMax !== undefined) ccp.warningLimitMax = dto.warningLimitMax;
-    if (dto.unit) ccp.unit = dto.unit;
-    if (dto.monitoringMethod) ccp.monitoringMethod = dto.monitoringMethod;
-    if (dto.monitoringFrequency) ccp.monitoringFrequency = dto.monitoringFrequency;
-    if (dto.status) ccp.status = dto.status;
+    if (updateCcpDto.hazardId && updateCcpDto.hazardId !== ccp.hazardId) {
+      await this.validateHazardRequirement(updateCcpDto.hazardId, ccp.planId, tenant);
+    }
 
+    Object.assign(ccp, updateCcpDto);
     return this.ccpRepository.save(ccp);
   }
 
   /**
-   * Delete a CCP entry from a DRAFT/IN_REVIEW plan
+   * Soft-delete a CCP
    */
-  async remove(id: string, tenant: TenantContext): Promise<{ success: boolean; id: string }> {
+  async delete(id: string, tenant: TenantContext): Promise<{ success: boolean; id: string }> {
     const ccp = await this.findById(id, tenant);
-
-    // Validate parent plan editable state
     await this.validateParentPlanState(ccp.planId, tenant);
 
-    await this.ccpRepository.remove(ccp);
+    await this.ccpRepository.softDelete(id);
     return { success: true, id };
   }
 }

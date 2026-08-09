@@ -32,6 +32,9 @@
     "haccpBuilder": "HACCP Հիմնական Կառուցիչ",
     "logTemplates": "Դինամիկ Ձևանմուշներ",
     "dailyJournal": "Ամենօրյա Գրանցամատյան",
+    "complianceDashboard": "Համապատասխանություն և CAPA",
+    "cleaningSanitation": "Մաքրում և Սանիտարիա",
+    "suppliersReceiving": "Մատակարարներ և Մուտքագրում",
     "auditReports": "HACCP Աուդիտի Հաշվետվություններ",
     "sensoryEquipment": "Սենսորային Սարքավորումներ",
     "languageManagement": "Լեզուների Կառավարում",
@@ -68,5 +71,22 @@
     "submitLog": "Ուղարկել Գրանցումը",
     "submittedRecords": "Հաստատված Անփոփոխ Գրանցումներ",
     "requestCorrection": "Պահանջել Պատմական Ուղղում"
+  },
+  "compliance": {
+    "title": "Համապատասխանության և CAPA Համակարգ",
+    "violations": "Ավտոմատ Խախտումներ",
+    "correctiveActions": "Ուղղիչ Գործողություններ (CAPA)",
+    "initiateCapa": "Սկսել CAPA",
+    "resolveViolation": "Լուծել Խախտումը",
+    "closeCapa": "Փակել CAPA"
+  },
+  "operations": {
+    "cleaningTitle": "Մաքրման և Սանիտարիայի Կանոնակարգեր",
+    "completeTask": "Ավարտել Առաջադրանքը",
+    "verifyTask": "Հաստատել Առաջադրանքը",
+    "suppliersTitle": "Մատակարարների Ցանկ",
+    "receivingTitle": "Մուտքագրման Ստուգման Գրանցամատյան",
+    "rejectDelivery": "Մերժել Առաքումը",
+    "rejectionReason": "Մերժման Պատճառ"
   }
 }

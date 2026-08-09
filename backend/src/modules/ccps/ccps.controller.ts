@@ -29,11 +29,11 @@ export class CcpsController {
 
   /**
    * GET /api/v1/ccps?planId=...
-   * Retrieve list of Critical Control Points for a target HACCP plan
+   * Retrieve list of Critical Control Points for a target HACCP plan (or all CCPs for tenant)
    */
   @Get()
   async findAllByPlan(
-    @Query('planId') planId: string,
+    @Query('planId') planId: string | undefined,
     @CurrentTenant() tenant: TenantContext,
   ) {
     return this.ccpsService.findAllByPlan(planId, tenant);
@@ -59,38 +59,38 @@ export class CcpsController {
   @UseInterceptors(AuditInterceptor)
   @AuditLog('CCP_CREATED', 'Ccp')
   async create(
-    @Body() dto: CreateCcpDto,
+    @Body() createCcpDto: CreateCcpDto,
     @CurrentTenant() tenant: TenantContext,
   ) {
-    return this.ccpsService.create(dto, tenant);
+    return this.ccpsService.create(createCcpDto, tenant);
   }
 
   /**
    * PUT /api/v1/ccps/:id
-   * Update CCP parameters and critical limits
+   * Update Critical Control Point limits or monitoring details
    */
   @Put(':id')
   @UseInterceptors(AuditInterceptor)
   @AuditLog('CCP_UPDATED', 'Ccp')
   async update(
     @Param('id') id: string,
-    @Body() dto: UpdateCcpDto,
+    @Body() updateCcpDto: UpdateCcpDto,
     @CurrentTenant() tenant: TenantContext,
   ) {
-    return this.ccpsService.update(id, dto, tenant);
+    return this.ccpsService.update(id, updateCcpDto, tenant);
   }
 
   /**
    * DELETE /api/v1/ccps/:id
-   * Delete a CCP entry from a draft HACCP plan
+   * Remove a Critical Control Point
    */
   @Delete(':id')
   @UseInterceptors(AuditInterceptor)
   @AuditLog('CCP_DELETED', 'Ccp')
-  async remove(
+  async delete(
     @Param('id') id: string,
     @CurrentTenant() tenant: TenantContext,
   ) {
-    return this.ccpsService.remove(id, tenant);
+    return this.ccpsService.delete(id, tenant);
   }
 }

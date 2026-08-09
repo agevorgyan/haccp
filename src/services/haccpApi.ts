@@ -116,7 +116,14 @@ export const haccpApi = {
 
   // Hazards
   async getHazards(planId?: string): Promise<Hazard[]> {
-    const response = await api.get('/hazards', { params: { planId } });
+    if (arguments.length > 0 && (!planId || planId === 'undefined' || planId === 'null')) {
+      return Promise.resolve([]);
+    }
+    const params: Record<string, string> = {};
+    if (planId && planId !== 'undefined' && planId !== 'null') {
+      params.planId = planId;
+    }
+    const response = await api.get('/hazards', { params });
     return response.data;
   },
 
@@ -146,7 +153,14 @@ export const haccpApi = {
 
   // CCPs
   async getCcps(planId?: string): Promise<Ccp[]> {
-    const response = await api.get('/ccps', { params: { planId } });
+    if (arguments.length > 0 && (!planId || planId === 'undefined' || planId === 'null')) {
+      return Promise.resolve([]);
+    }
+    const params: Record<string, string> = {};
+    if (planId && planId !== 'undefined' && planId !== 'null') {
+      params.planId = planId;
+    }
+    const response = await api.get('/ccps', { params });
     return response.data;
   },
 

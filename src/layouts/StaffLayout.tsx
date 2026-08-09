@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   LogOut,
   Globe,
+  Sparkles,
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
 import { NotificationBell } from '../components/common/NotificationBell';
@@ -23,6 +24,7 @@ interface NavItem {
 const STAFF_NAV_ITEMS: NavItem[] = [
   { path: '/staff/dashboard', key: 'nav.executiveDashboard', icon: LayoutDashboard },
   { path: '/staff/journal', key: 'nav.dailyJournal', icon: ClipboardCheck },
+  { path: '/staff/cleaning', key: 'nav.cleaningSanitation', icon: Sparkles },
   { path: '/staff/temp-check', key: 'nav.sensoryEquipment', icon: Thermometer, badge: 3 },
   { path: '/staff/incidents', key: 'manager.recentDeviations', icon: AlertTriangle },
 ];

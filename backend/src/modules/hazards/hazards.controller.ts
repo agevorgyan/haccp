@@ -29,11 +29,11 @@ export class HazardsController {
 
   /**
    * GET /api/v1/hazards?planId=...
-   * Retrieve list of hazards associated with a target HACCP plan
+   * Retrieve list of hazards associated with a target HACCP plan (or all hazards for tenant)
    */
   @Get()
   async findAllByPlan(
-    @Query('planId') planId: string,
+    @Query('planId') planId: string | undefined,
     @CurrentTenant() tenant: TenantContext,
   ) {
     return this.hazardsService.findAllByPlan(planId, tenant);
@@ -59,38 +59,38 @@ export class HazardsController {
   @UseInterceptors(AuditInterceptor)
   @AuditLog('HAZARD_CREATED', 'Hazard')
   async create(
-    @Body() dto: CreateHazardDto,
+    @Body() createHazardDto: CreateHazardDto,
     @CurrentTenant() tenant: TenantContext,
   ) {
-    return this.hazardsService.create(dto, tenant);
+    return this.hazardsService.create(createHazardDto, tenant);
   }
 
   /**
    * PUT /api/v1/hazards/:id
-   * Update hazard configuration and recalculate 5x5 risk score metrics
+   * Update hazard parameters and re-calculate risk score
    */
   @Put(':id')
   @UseInterceptors(AuditInterceptor)
   @AuditLog('HAZARD_UPDATED', 'Hazard')
   async update(
     @Param('id') id: string,
-    @Body() dto: UpdateHazardDto,
+    @Body() updateHazardDto: UpdateHazardDto,
     @CurrentTenant() tenant: TenantContext,
   ) {
-    return this.hazardsService.update(id, dto, tenant);
+    return this.hazardsService.update(id, updateHazardDto, tenant);
   }
 
   /**
    * DELETE /api/v1/hazards/:id
-   * Remove a hazard entry from a draft HACCP plan
+   * Soft delete hazard record
    */
   @Delete(':id')
   @UseInterceptors(AuditInterceptor)
   @AuditLog('HAZARD_DELETED', 'Hazard')
-  async remove(
+  async delete(
     @Param('id') id: string,
     @CurrentTenant() tenant: TenantContext,
   ) {
-    return this.hazardsService.remove(id, tenant);
+    return this.hazardsService.delete(id, tenant);
   }
 }

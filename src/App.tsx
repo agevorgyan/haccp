@@ -11,6 +11,9 @@ import { LanguageManagementPage } from './pages/manager/LanguageManagementPage';
 import { UserManagementPage } from './pages/manager/UserManagementPage';
 import { HaccpBuilderPage } from './pages/manager/HaccpBuilderPage';
 import { LogTemplatesAdminPage } from './pages/manager/LogTemplatesAdminPage';
+import { ComplianceDashboardPage } from './pages/manager/ComplianceDashboardPage';
+import { CleaningSanitationPage } from './pages/manager/CleaningSanitationPage';
+import { SuppliersReceivingPage } from './pages/manager/SuppliersReceivingPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -55,6 +58,7 @@ export const App: React.FC = () => {
               <Route index element={<Navigate to="/staff/dashboard" replace />} />
               <Route path="dashboard" element={<StaffDashboard />} />
               <Route path="journal" element={<StaffDailyJournalPage />} />
+              <Route path="cleaning" element={<CleaningSanitationPage />} />
               <Route path="temp-check" element={<TempLogPage />} />
               <Route path="logs" element={<StaffDashboard />} />
               <Route path="incidents" element={<StaffDashboard />} />
@@ -68,6 +72,9 @@ export const App: React.FC = () => {
               <Route path="dashboard" element={<ManagerDashboard />} />
               <Route path="haccp" element={<HaccpBuilderPage />} />
               <Route path="templates" element={<LogTemplatesAdminPage />} />
+              <Route path="compliance" element={<ComplianceDashboardPage />} />
+              <Route path="cleaning" element={<CleaningSanitationPage />} />
+              <Route path="suppliers" element={<SuppliersReceivingPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="users" element={<UserManagementPage />} />
               <Route path="equipment" element={<ManagerDashboard />} />

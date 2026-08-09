@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -23,17 +22,17 @@ export class HazardsService {
   ) {}
 
   /**
-   * Automatically calculate 5x5 matrix risk score and significance/CCP status
+   * Calculate risk score (Severity x Likelihood) and determine critical CCP requirements
    */
   private calculateRiskMetrics(severity: number, likelihood: number) {
     const riskScore = severity * likelihood;
     const isSignificant = riskScore >= 10;
-    const requiresCCP = isSignificant;
+    const requiresCCP = riskScore >= 10;
     return { riskScore, isSignificant, requiresCCP };
   }
 
   /**
-   * Validate that the target HACCP Plan belongs to tenant and is in editable status (DRAFT or IN_REVIEW)
+   * Validate parent HACCP plan status (must be DRAFT or IN_REVIEW)
    */
   private async validateParentPlanState(planId: string, tenant: TenantContext) {
     const plan = await this.haccpPlansService.findById(planId, tenant);
@@ -53,12 +52,18 @@ export class HazardsService {
   /**
    * Retrieve all hazards for a specific plan, strictly isolated by tenant organization ID
    */
-  async findAllByPlan(planId: string, tenant: TenantContext): Promise<Hazard[]> {
-    // Validate parent plan ownership first
-    await this.haccpPlansService.findById(planId, tenant);
+  async findAllByPlan(planId: string | undefined, tenant: TenantContext): Promise<Hazard[]> {
+    if (planId && planId !== 'undefined' && planId !== 'null' && planId.trim() !== '') {
+      await this.haccpPlansService.findById(planId, tenant);
+
+      return this.hazardRepository.find({
+        where: { planId, organizationId: tenant.organizationId },
+        order: { riskScore: 'DESC', createdAt: 'DESC' },
+      });
+    }
 
     return this.hazardRepository.find({
-      where: { planId, organizationId: tenant.organizationId },
+      where: { organizationId: tenant.organizationId },
       order: { riskScore: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -87,33 +92,19 @@ export class HazardsService {
   }
 
   /**
-   * Create a new hazard attached to a HACCP plan
+   * Register a new hazard with automated 5x5 risk assessment
    */
-  async create(dto: CreateHazardDto, tenant: TenantContext): Promise<Hazard> {
-    if (!tenant.organizationId && tenant.role !== UserRole.SUPER_ADMIN) {
-      throw new ForbiddenException('Tenant organization reference required to register a hazard.');
-    }
+  async create(createHazardDto: CreateHazardDto, tenant: TenantContext): Promise<Hazard> {
+    await this.validateParentPlanState(createHazardDto.planId, tenant);
 
-    // 1. Verify plan ownership and editable state (DRAFT / IN_REVIEW)
-    const plan = await this.validateParentPlanState(dto.planId, tenant);
-
-    // 2. Compute 5x5 matrix risk score & CCP flags
     const { riskScore, isSignificant, requiresCCP } = this.calculateRiskMetrics(
-      dto.severity,
-      dto.likelihood,
+      createHazardDto.severity,
+      createHazardDto.likelihood,
     );
 
-    // 3. Instantiate and persist hazard
     const hazard = this.hazardRepository.create({
-      organizationId: plan.organizationId,
-      planId: plan.id,
-      processStepId: dto.processStepId,
-      category: dto.category,
-      description: dto.description,
-      source: dto.source,
-      preventiveMeasures: dto.preventiveMeasures,
-      severity: dto.severity,
-      likelihood: dto.likelihood,
+      ...createHazardDto,
+      organizationId: tenant.organizationId,
       riskScore,
       isSignificant,
       requiresCCP,
@@ -123,50 +114,38 @@ export class HazardsService {
   }
 
   /**
-   * Update an existing hazard with automatic recalculation of risk score & parent plan status checks
+   * Update an existing hazard and recalculate risk score
    */
-  async update(
-    id: string,
-    dto: UpdateHazardDto,
-    tenant: TenantContext,
-  ): Promise<Hazard> {
+  async update(id: string, updateHazardDto: UpdateHazardDto, tenant: TenantContext): Promise<Hazard> {
     const hazard = await this.findById(id, tenant);
-
-    // Verify parent plan editable status (DRAFT / IN_REVIEW)
     await this.validateParentPlanState(hazard.planId, tenant);
 
-    if (dto.category) hazard.category = dto.category;
-    if (dto.description) hazard.description = dto.description;
-    if (dto.source !== undefined) hazard.source = dto.source;
-    if (dto.preventiveMeasures !== undefined) hazard.preventiveMeasures = dto.preventiveMeasures;
-    if (dto.processStepId !== undefined) hazard.processStepId = dto.processStepId;
+    const severity = updateHazardDto.severity ?? hazard.severity;
+    const likelihood = updateHazardDto.likelihood ?? hazard.likelihood;
 
-    if (dto.severity !== undefined) hazard.severity = dto.severity;
-    if (dto.likelihood !== undefined) hazard.likelihood = dto.likelihood;
-
-    // Recalculate 5x5 risk score metrics
     const { riskScore, isSignificant, requiresCCP } = this.calculateRiskMetrics(
-      hazard.severity,
-      hazard.likelihood,
+      severity,
+      likelihood,
     );
 
-    hazard.riskScore = riskScore;
-    hazard.isSignificant = isSignificant;
-    hazard.requiresCCP = requiresCCP;
+    Object.assign(hazard, {
+      ...updateHazardDto,
+      riskScore,
+      isSignificant,
+      requiresCCP,
+    });
 
     return this.hazardRepository.save(hazard);
   }
 
   /**
-   * Delete a hazard entry from a DRAFT/IN_REVIEW plan
+   * Soft-delete a hazard record
    */
-  async remove(id: string, tenant: TenantContext): Promise<{ success: boolean; id: string }> {
+  async delete(id: string, tenant: TenantContext): Promise<{ success: boolean; id: string }> {
     const hazard = await this.findById(id, tenant);
-
-    // Verify parent plan editable status
     await this.validateParentPlanState(hazard.planId, tenant);
 
-    await this.hazardRepository.remove(hazard);
+    await this.hazardRepository.softDelete(id);
     return { success: true, id };
   }
 }
