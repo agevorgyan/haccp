@@ -4,10 +4,13 @@ import { StaffLayout } from './layouts/StaffLayout';
 import { ManagerLayout } from './layouts/ManagerLayout';
 import { StaffDashboard } from './pages/staff/StaffDashboard';
 import { TempLogPage } from './pages/staff/TempLogPage';
+import { StaffDailyJournalPage } from './pages/staff/StaffDailyJournalPage';
 import { ManagerDashboard } from './pages/manager/ManagerDashboard';
 import { ReportsPage } from './pages/manager/ReportsPage';
 import { LanguageManagementPage } from './pages/manager/LanguageManagementPage';
 import { UserManagementPage } from './pages/manager/UserManagementPage';
+import { HaccpBuilderPage } from './pages/manager/HaccpBuilderPage';
+import { LogTemplatesAdminPage } from './pages/manager/LogTemplatesAdminPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -16,7 +19,6 @@ import { NotificationProvider } from './context/NotificationContext';
 
 /**
  * Root Redirect Handler
- * Dynamically routes user to /login if unauthenticated, or to their role dashboard if authenticated.
  */
 const RootRedirect: React.FC = () => {
   const isAuthenticated = authService.isAuthenticated();
@@ -34,48 +36,51 @@ const RootRedirect: React.FC = () => {
 };
 
 /**
- * App Component - Foundational Routing Architecture with Role-Based Route Protection
+ * App Component
  */
 export const App: React.FC = () => {
   return (
     <NotificationProvider>
       <BrowserRouter>
-      <Routes>
-        {/* Public Authentication Route */}
-        <Route path="/login" element={<LoginPage />} />
+        <Routes>
+          {/* Public Authentication Route */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* Dynamic Root Route */}
-        <Route path="/" element={<RootRedirect />} />
+          {/* Dynamic Root Route */}
+          <Route path="/" element={<RootRedirect />} />
 
-        {/* Protected Staff Layout Group (Mobile Kitchen Interface) */}
-        <Route element={<ProtectedRoute allowedRoles={['STAFF', 'MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
-          <Route path="/staff" element={<StaffLayout />}>
-            <Route index element={<Navigate to="/staff/dashboard" replace />} />
-            <Route path="dashboard" element={<StaffDashboard />} />
-            <Route path="temp-check" element={<TempLogPage />} />
-            <Route path="logs" element={<StaffDashboard />} />
-            <Route path="incidents" element={<StaffDashboard />} />
+          {/* Protected Staff Layout Group */}
+          <Route element={<ProtectedRoute allowedRoles={['STAFF', 'MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
+            <Route path="/staff" element={<StaffLayout />}>
+              <Route index element={<Navigate to="/staff/dashboard" replace />} />
+              <Route path="dashboard" element={<StaffDashboard />} />
+              <Route path="journal" element={<StaffDailyJournalPage />} />
+              <Route path="temp-check" element={<TempLogPage />} />
+              <Route path="logs" element={<StaffDashboard />} />
+              <Route path="incidents" element={<StaffDashboard />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Protected Manager Layout Group (Desktop Administrative Cockpit) */}
-        <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
-          <Route path="/manager" element={<ManagerLayout />}>
-            <Route index element={<Navigate to="/manager/dashboard" replace />} />
-            <Route path="dashboard" element={<ManagerDashboard />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="users" element={<UserManagementPage />} />
-            <Route path="equipment" element={<ManagerDashboard />} />
-            <Route path="locations" element={<ManagerDashboard />} />
-            <Route path="languages" element={<LanguageManagementPage />} />
-            <Route path="settings" element={<ManagerDashboard />} />
+          {/* Protected Manager Layout Group */}
+          <Route element={<ProtectedRoute allowedRoles={['MANAGER', 'OWNER', 'SUPER_ADMIN']} />}>
+            <Route path="/manager" element={<ManagerLayout />}>
+              <Route index element={<Navigate to="/manager/dashboard" replace />} />
+              <Route path="dashboard" element={<ManagerDashboard />} />
+              <Route path="haccp" element={<HaccpBuilderPage />} />
+              <Route path="templates" element={<LogTemplatesAdminPage />} />
+              <Route path="reports" element={<ReportsPage />} />
+              <Route path="users" element={<UserManagementPage />} />
+              <Route path="equipment" element={<ManagerDashboard />} />
+              <Route path="locations" element={<ManagerDashboard />} />
+              <Route path="languages" element={<LanguageManagementPage />} />
+              <Route path="settings" element={<ManagerDashboard />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* 404 Catch-All Route */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
+          {/* 404 Catch-All Route */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
     </NotificationProvider>
   );
 };

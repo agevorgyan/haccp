@@ -6,20 +6,20 @@ import {
   FileSpreadsheet,
   Building2,
   Settings,
-  Search,
   ChevronDown,
   ShieldCheck,
   ThermometerSnowflake,
   LogOut,
   Menu,
   X,
-  Download,
-  AlertCircle,
   Globe,
-  Users
+  Users,
+  FileDiff,
+  Layers,
 } from 'lucide-react';
 import { OfflineBadge } from '../components/common/OfflineBadge';
 import { NotificationBell } from '../components/common/NotificationBell';
+import { CorrectionRequestsModal } from '../components/manager/CorrectionRequestsModal';
 import { authService } from '../services/authService';
 
 interface NavItem {
@@ -31,6 +31,8 @@ interface NavItem {
 
 const TOP_NAV_ITEMS: NavItem[] = [
   { path: '/manager/dashboard', key: 'nav.executiveDashboard', icon: LayoutDashboard },
+  { path: '/manager/haccp', key: 'nav.haccpBuilder', icon: ShieldCheck },
+  { path: '/manager/templates', key: 'nav.logTemplates', icon: Layers },
   { path: '/manager/reports', key: 'nav.auditReports', icon: FileSpreadsheet, badge: 'PDF' },
   { path: '/manager/equipment', key: 'nav.sensoryEquipment', icon: ThermometerSnowflake },
   { path: '/manager/locations', key: 'nav.multiVenueOverview', icon: Building2 },
@@ -44,14 +46,13 @@ const SETTINGS_SUB_ITEMS: NavItem[] = [
 
 /**
  * ManagerLayout Component
- * Desktop/Tablet-first administrative cockpit engineered for restaurant owners, quality managers,
- * and food safety auditors who need macro analytics, compliance reports, and audit trail exports.
  */
 export const ManagerLayout: React.FC = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [selectedVenue, setSelectedVenue] = useState<string>('All Locations (3)');
+  const [isCorrectionModalOpen, setIsCorrectionModalOpen] = useState<boolean>(false);
 
   const isSettingsActive = SETTINGS_SUB_ITEMS.some((item) => location.pathname === item.path);
 
@@ -158,15 +159,15 @@ export const ManagerLayout: React.FC = () => {
                 className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
                   isActive
                     ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
-                  <span>{t(item.key)}</span>
+                  <span>{t(item.key, item.key)}</span>
                 </div>
                 {item.badge && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
                     {item.badge}
                   </span>
                 )}
@@ -174,47 +175,36 @@ export const ManagerLayout: React.FC = () => {
             );
           })}
 
-          {/* Settings Section Header & Collapsible Submenu */}
+          {/* Settings Collapsible Group */}
           <div className="pt-2">
             <button
-              onClick={() => setSettingsOpen((prev) => !prev)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                isSettingsActive
-                  ? 'text-emerald-400 bg-slate-900/90 font-semibold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              onClick={() => setSettingsOpen(!settingsOpen)}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                isSettingsActive ? 'text-emerald-400' : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <div className="flex items-center gap-3">
-                <Settings className={`w-4 h-4 ${isSettingsActive ? 'text-emerald-400' : 'text-slate-400'}`} />
-                <span>{t('nav.complianceSettings')}</span>
+                <Settings className="w-4 h-4 text-slate-400" />
+                <span>{t('nav.settings', 'Settings')}</span>
               </div>
-              <ChevronDown
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                  settingsOpen ? 'rotate-180 text-emerald-400' : ''
-                }`}
-              />
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
             </button>
-
-            {/* Nested Settings Submenu */}
             {settingsOpen && (
-              <div className="ml-3 pl-3 mt-1 space-y-1 border-l border-slate-800/80">
-                {SETTINGS_SUB_ITEMS.map((subItem) => {
-                  const SubIcon = subItem.icon;
-                  const isSubActive = location.pathname === subItem.path;
-
+              <div className="pl-6 pt-1 space-y-1">
+                {SETTINGS_SUB_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
                   return (
                     <NavLink
-                      key={subItem.path}
-                      to={subItem.path}
+                      key={item.path}
+                      to={item.path}
                       onClick={() => setSidebarOpen(false)}
                       className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                        isSubActive
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                        isActive ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:text-slate-200'
                       }`}
                     >
-                      <SubIcon className={`w-3.5 h-3.5 ${isSubActive ? 'text-emerald-400' : 'text-slate-400'}`} />
-                      <span>{t(subItem.key)}</span>
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{t(item.key, item.key)}</span>
                     </NavLink>
                   );
                 })}
@@ -223,73 +213,57 @@ export const ManagerLayout: React.FC = () => {
           </div>
         </nav>
 
-        {/* User Account / Manager Profile */}
-        <div className="p-3 border-t border-slate-800/80 bg-slate-950/60">
-          <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900/80 border border-slate-800">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-emerald-700/80 text-emerald-100 font-bold text-xs flex items-center justify-center border border-emerald-600/50">
-                {initials}
-              </div>
-              <div className="overflow-hidden text-ellipsis whitespace-nowrap">
-                <p className="text-xs font-semibold text-slate-200 leading-tight">{displayName}</p>
-                <p className="text-[10px] text-slate-400 leading-tight">{roleLabel}</p>
-              </div>
+        {/* User Account Footer */}
+        <div className="p-4 border-t border-slate-800/80 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-xs text-emerald-400">
+              {initials}
             </div>
-            <button
-              onClick={() => {
-                authService.logout();
-                window.location.href = '/login';
-              }}
-              className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-900 transition-colors cursor-pointer"
-              title={t('nav.logout')}
-              aria-label={t('nav.logout')}
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            <div className="truncate">
+              <span className="text-xs font-bold text-slate-200 block truncate">{displayName}</span>
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{roleLabel}</span>
+            </div>
           </div>
+          <button
+            onClick={() => authService.logout()}
+            className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-900 transition-colors"
+            title={t('common.logout')}
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </aside>
 
-      {/* Main Content Workspace Wrapper */}
-      <div className="flex-1 flex flex-col min-w-0 bg-slate-900">
-        {/* Manager Workspace Top Bar */}
-        <header className="h-16 bg-slate-950/80 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 backdrop-blur-md">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Navbar */}
+        <header className="h-16 bg-slate-950/60 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between gap-4 sticky top-0 z-30 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-900"
-              aria-label="Open Navigation Sidebar"
+              className="md:hidden text-slate-400 hover:text-white p-2 rounded-lg bg-slate-900 border border-slate-800"
             >
               <Menu className="w-5 h-5" />
             </button>
-
-            {/* Global Search */}
-            <div className="relative hidden sm:block w-64 md:w-80">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                placeholder={t('common.search')}
-                className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-4 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-              />
-            </div>
           </div>
 
-          {/* Quick Action Header Tools */}
           <div className="flex items-center gap-3">
+            {/* Correction Requests Modal Trigger */}
+            <button
+              onClick={() => setIsCorrectionModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30 transition-colors cursor-pointer"
+            >
+              <FileDiff className="w-3.5 h-3.5" />
+              <span>Correction Requests</span>
+            </button>
+
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold border border-slate-700 transition-colors cursor-pointer"
-              title="Toggle Application Language"
             >
               <Globe className="w-3.5 h-3.5 text-emerald-400" />
               <span>{i18n.language === 'am' ? 'AM (ՀԱՅ)' : 'EN'}</span>
-            </button>
-
-            {/* Quick Export Button */}
-            <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors">
-              <Download className="w-3.5 h-3.5 text-slate-400" />
-              <span>{t('common.exportAudit')}</span>
             </button>
 
             {/* Real-time Notification Bell */}
@@ -307,33 +281,16 @@ export const ManagerLayout: React.FC = () => {
 
         {/* Viewport Outlet */}
         <main className="flex-1 p-4 sm:p-6 overflow-y-auto max-w-7xl w-full mx-auto">
-          {/* Real-time CCP Warning Banner */}
-          <div className="mb-6 p-4 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-200 flex items-start justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-rose-300">
-                  {t('manager.activeCCPAlert')}
-                </h4>
-                <p className="text-xs text-rose-200/90 mt-0.5">
-                  {t('manager.ccpAlertDetail')}
-                </p>
-              </div>
-            </div>
-            <NavLink
-              to="/manager/reports"
-              className="shrink-0 text-xs font-semibold underline hover:text-white"
-            >
-              {t('manager.investigateLog')}
-            </NavLink>
-          </div>
-
           <Outlet />
         </main>
       </div>
+
+      <CorrectionRequestsModal
+        isOpen={isCorrectionModalOpen}
+        onClose={() => setIsCorrectionModalOpen(false)}
+      />
     </div>
   );
 };
 
 export default ManagerLayout;
-

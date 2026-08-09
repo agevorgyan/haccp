@@ -17,6 +17,7 @@ import { CapasModule } from './modules/capas/capas.module';
 import { CleaningTasksModule } from './modules/cleaning-tasks/cleaning-tasks.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { ReceivingModule } from './modules/receiving/receiving.module';
+import { BatchesModule } from './modules/batches/batches.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -77,6 +78,7 @@ import { ReceivingModule } from './modules/receiving/receiving.module';
     CleaningTasksModule,
     SuppliersModule,
     ReceivingModule,
+    BatchesModule,
   ],
   controllers: [],
   providers: [],
