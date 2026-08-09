@@ -93,7 +93,7 @@ export const TemperatureLogForm: React.FC<TemperatureLogFormProps> = ({
   };
 
   return (
-    <div className="max-w-md mx-auto bg-slate-900 text-slate-100 rounded-3xl border border-slate-800 shadow-2xl overflow-y-auto max-h-[90vh] select-none">
+    <div className="max-w-md mx-auto bg-slate-900 text-slate-100 rounded-3xl border border-slate-800 shadow-2xl overflow-y-auto max-h-[90vh]">
       {/* Form Header */}
       <div className="bg-slate-950 px-5 py-4 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-3">

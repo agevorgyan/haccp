@@ -79,20 +79,20 @@ export const ManagerDashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 select-none antialiased">
+    <div className="space-y-8 antialiased">
       {/* Desktop Dashboard Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-950/60 p-6 rounded-3xl border border-slate-800/80 shadow-sm backdrop-blur-sm">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-400">
-              {t('manager.dashboardTitle')}
+              {t('manager.dashboardTitle', 'Executive Operations Oversight')}
             </span>
           </div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight mt-0.5">
             Welcome, {displayName}
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            {t('manager.dashboardSub')}
+            {t('manager.dashboardSub', 'Real-time compliance monitoring, CCP limit violations, and temperature telemetry.')}
           </p>
         </div>
 

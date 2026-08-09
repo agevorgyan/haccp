@@ -171,7 +171,7 @@ export const LanguageManagementPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto select-none antialiased">
+    <div className="space-y-6 max-w-6xl mx-auto antialiased">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-xl">
         <div className="flex items-center gap-4">

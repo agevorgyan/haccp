@@ -20,12 +20,45 @@
     "exportAudit": "Export Audit Trail",
     "offline": "OFFLINE MODE: Logs will sync automatically once reconnected.",
     "online": "ONLINE MODE",
+    "logout": "Log Out",
     "roles": {
       "superAdmin": "Super Admin",
       "owner": "Business Owner",
       "manager": "Kitchen Manager",
       "staff": "Kitchen Staff"
     }
+  },
+  "auth": {
+    "signInTitle": "Sign in to SafeKitchen",
+    "signInSub": "Enter your registered phone number and 4-digit PIN password.",
+    "errorEmpty": "Please enter your phone number and PIN password.",
+    "errorInvalid": "Invalid phone number or PIN password.",
+    "errorConnection": "Authentication failed. Check your network or credentials.",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "e.g. 099111111",
+    "pinLabel": "PIN / Password",
+    "pinPlaceholder": "Enter PIN",
+    "authenticating": "Authenticating...",
+    "signInButton": "Sign In to Workspace",
+    "presetsTitle": "Quick Demo Credentials",
+    "staffUser": "Kitchen Staff",
+    "managerUser": "Kitchen Manager"
+  },
+  "AUTH": {
+    "SIGNINTITLE": "Sign in to SafeKitchen",
+    "SIGNINSUB": "Enter your registered phone number and 4-digit PIN password.",
+    "ERROREMPTY": "Please enter your phone number and PIN password.",
+    "ERRORINVALID": "Invalid phone number or PIN password.",
+    "ERRORCONNECTION": "Authentication failed. Check your network or credentials.",
+    "PHONELABEL": "Phone Number",
+    "PHONEPLACEHOLDER": "e.g. 099111111",
+    "PINLABEL": "PIN / Password",
+    "PINPLACEHOLDER": "Enter PIN",
+    "AUTHENTICATING": "Authenticating...",
+    "SIGNINBUTTON": "Sign In to Workspace",
+    "PRESETSTITLE": "Quick Demo Credentials",
+    "STAFFUSER": "Kitchen Staff",
+    "MANAGERUSER": "Kitchen Manager"
   },
   "nav": {
     "executiveAnalytics": "Executive Analytics",
@@ -47,7 +80,8 @@
     "kitchenMode": "Switch to Kitchen Mode",
     "managerMode": "Manager Portal",
     "superAdminPortal": "Super Admin Backoffice",
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "settings": "Settings"
   },
   "notifications": {
     "title": "Notifications",
@@ -121,5 +155,29 @@
     "maxUsersReached": "Max Users Reached",
     "suspendOrg": "Suspend Organization",
     "plans": "SaaS Subscription Tiers"
+  },
+  "manager": {
+    "dashboardTitle": "Executive Operations Oversight",
+    "dashboardSub": "Real-time compliance monitoring, CCP limit violations, and temperature telemetry.",
+    "locationPerformance": "Location Performance Context"
+  },
+  "MANAGER": {
+    "DASHBOARDTITLE": "Executive Operations Oversight",
+    "DASHBOARDSUB": "Real-time compliance monitoring, CCP limit violations, and temperature telemetry.",
+    "LOCATIONPERFORMANCE": "Location Performance Context"
+  },
+  "staff": {
+    "title": "Staff Kitchen Operations",
+    "shiftStats": "Shift Statistics & Quick Logs"
+  },
+  "users": {
+    "title": "Team & Role Management",
+    "createSuccess": "User created successfully",
+    "updateSuccess": "User updated successfully"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "The requested page does not exist or you do not have permission to view it.",
+    "backHome": "Back to Dashboard"
   }
 }

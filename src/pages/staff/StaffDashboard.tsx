@@ -181,7 +181,7 @@ export const StaffDashboard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto space-y-4 select-none pb-8">
+    <div className="max-w-md mx-auto space-y-4 pb-8">
       {/* Modal Form Overlay */}
       {activeFormLog && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md overflow-y-auto">

@@ -46,7 +46,7 @@ export const StaffLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 select-none pb-20">
+    <div className="min-h-screen flex flex-col bg-slate-100 text-slate-900 pb-20">
       <OfflineBadge />
 
       {/* Mobile Kitchen Header */}
