@@ -36,6 +36,7 @@
     "cleaningSanitation": "Մաքրում և Սանիտարիա",
     "suppliersReceiving": "Մատակարարներ և Մուտքագրում",
     "batchesTraceability": "Խմբաքանակներ և Հետագծելիություն",
+    "iotSensors": "IoT Սենսորներ և Տելեմետրիա",
     "auditReports": "HACCP Աուդիտի Հաշվետվություններ",
     "sensoryEquipment": "Սենսորային Սարքավորումներ",
     "languageManagement": "Լեզուների Կառավարում",
@@ -97,5 +98,12 @@
     "quarantine": "Կարանտինացնել Խմբաքանակը",
     "recall": "Հետ Կանչել Խմբաքանակը",
     "exhausted": "Սպառված"
+  },
+  "iot": {
+    "title": "IoT Սենսորներ և Տելեմետրիա",
+    "deploySensor": "Տեղադրել Սենսորային Սարք",
+    "ingestReading": "Ուղարկել Տելեմետրիկ Ցուցմունք",
+    "battery": "Մարտկոցի Մակարդակ",
+    "lastPing": "Վերջին Ակտիվություն"
   }
 }

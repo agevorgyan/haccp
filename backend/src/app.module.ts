@@ -18,6 +18,7 @@ import { CleaningTasksModule } from './modules/cleaning-tasks/cleaning-tasks.mod
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { ReceivingModule } from './modules/receiving/receiving.module';
 import { BatchesModule } from './modules/batches/batches.module';
+import { IoTSensorsModule } from './modules/iot-sensors/iot-sensors.module';
 
 /**
  * AppModule - NestJS Core Application Module
@@ -79,6 +80,7 @@ import { BatchesModule } from './modules/batches/batches.module';
     SuppliersModule,
     ReceivingModule,
     BatchesModule,
+    IoTSensorsModule,
   ],
   controllers: [],
   providers: [],

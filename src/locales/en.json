@@ -36,6 +36,7 @@
     "cleaningSanitation": "Cleaning & Sanitation",
     "suppliersReceiving": "Suppliers & Receiving",
     "batchesTraceability": "Batches & Lot Traceability",
+    "iotSensors": "IoT Sensors & Telemetry",
     "auditReports": "HACCP Audit Reports",
     "sensoryEquipment": "Sensory Equipment",
     "languageManagement": "Language Management",
@@ -97,5 +98,12 @@
     "quarantine": "Quarantine Batch",
     "recall": "Recall Batch",
     "exhausted": "Exhausted"
+  },
+  "iot": {
+    "title": "IoT Sensors & Telemetry",
+    "deploySensor": "Deploy Hardware Sensor Node",
+    "ingestReading": "Ingest Telemetry Reading",
+    "battery": "Battery Level",
+    "lastPing": "Last Ping"
   }
 }
